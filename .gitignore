@@ -1,0 +1,7 @@
+# Local compiled packages
+node_modules
+.tmp
+.idea
+bower_components
+dist
+/server/config/local.env.js
