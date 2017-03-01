@@ -7,4 +7,3 @@ angular
     ]);
 
 require('./analytics/analytics.module');
-require('./dashboard/dashboard.module');

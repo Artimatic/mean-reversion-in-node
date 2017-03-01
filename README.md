@@ -1,5 +1,5 @@
-# starter-node
-Starter Project with Angular JS and Node JS
+# mean-reversion-in-node
+An implementation of mean reversion in node
 
 ## requirements
 - Gulp
