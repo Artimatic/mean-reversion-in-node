@@ -6,9 +6,17 @@ const _ = require('lodash');
 const errors = require('../../components/errors/baseErrors');
 
 class QuoteService {
-    getData(tickers, start, end) {
+    getMultiData(tickers, start, end) {
         return yahooFinance.historical({
             symbols: tickers,
+            from: String(start),
+            to: String(end)
+        });
+    }
+
+    getData(ticker, start, end) {
+        return yahooFinance.historical({
+            symbol: ticker,
             from: String(start),
             to: String(end)
         });

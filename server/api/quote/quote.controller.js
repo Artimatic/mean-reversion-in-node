@@ -21,7 +21,7 @@ class QuoteController extends BaseController {
             return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
         }
         else {
-            QuoteService.getData(request.body.tickers, request.body.start,  request.body.end)
+            QuoteService.getData(request.body.ticker, request.body.start,  request.body.end)
                 .then((data) => BaseController.requestGetSuccessHandler(response, data))
                 .catch((err) => BaseController.requestErrorHandler(response, err));
         }
