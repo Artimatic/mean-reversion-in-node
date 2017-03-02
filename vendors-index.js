@@ -2,6 +2,7 @@ window.$ = window.jQuery = require('jquery');
 window._ = require('lodash');
 window.d3 = require('d3');
 window.c3 = require('c3');
+window.moment = require('moment');
 
 require('angular');
 require('angular-animate');
