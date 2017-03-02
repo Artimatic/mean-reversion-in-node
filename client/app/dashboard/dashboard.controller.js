@@ -1,16 +1,17 @@
 'use strict';
 class BacktestController {
     constructor($scope, $mdDialog, $http, $window) {
-        this.$scope = $scope;
+        this.vm = $scope;
         this.$mdDialog = $mdDialog;
         this.$http = $http;
         this.$window = $window;
-        this.$scope.backtestDate = new Date();
-        this.$scope.datapoints=[];
-        this.$scope.datacolumns=[{'id':'top-1','type':'line','name':'Top one'},
+        this.vm.backtestDate = new Date();
+        this.vm.datapoints=[];
+        this.vm.datacolumns=[{'id':'top-1','type':'line','name':'Top one'},
                             {'id':'top-2','type':'spline','name':'Top two'}];
-        this.$scope.datax={'id':'x'};
-
+        this.vm.datax={'id':'x'};
+        this.vm.security = '';
+        this.vm.record = [];
     }
 
     $onInit() {
@@ -26,18 +27,26 @@ class BacktestController {
           data: requestBody
         })
         .then((response) => {
-            console.log('data ', response);
-            this.$scope.datapoints = [];
+            this.vm.datapoints = [];
             response.data.forEach((value) => {
                 var date = this.$window.moment(value.date).format('YYYY-MM-DD');
-                this.$scope.datapoints.push({'x':date,'top-1':value.close});
+                var buy = () => {
+                    this.vm.record.push({'time': date, 'price': value.close, 'order': 'buy'});
+                };
+                var sell = () => {
+                    this.vm.record.push({'time': date, 'price': value.close, 'order': 'sell'});
+                };
+                var doNothing = () => {
+                };
+                this.vm.datapoints.push({'x': date, 'top-1': value.close});
+                this.runTradingAlg(date, buy, sell, doNothing);
             });
         })
         .catch((error) => {
-            console.log(error);
+            console.err(error);
         });
 
-        this.$scope.menu = [{
+        this.vm.menu = [{
           link: '',
           title: 'Dashboard',
           icon: 'dashboard'
@@ -50,7 +59,7 @@ class BacktestController {
           title: 'Messages',
           icon: 'message'
         }];
-        this.$scope.admin = [{
+        this.vm.admin = [{
           link: '',
           title: 'Trash',
           icon: 'delete'
@@ -59,121 +68,70 @@ class BacktestController {
           title: 'Settings',
           icon: 'settings'
         }];
-        this.$scope.activity = [{
+        this.vm.activity = [{
           what: 'Brunch this weekend?',
           who: 'Ali Conners',
           when: '3:08PM',
           notes: ' I\'ll be in your neighborhood doing errands'
         }];
-        this.$scope.alert = '';
-        this.$scope.showListBottomSheet = function($event) {
-          this.$scope.alert = '';
+        this.vm.alert = '';
+        this.vm.showListBottomSheet = function($event) {
+          this.vm.alert = '';
           this.$mdBottomSheet.show({
             template: '<md-bottom-sheet class="md-list md-has-header"> <md-subheader>Settings</md-subheader> <md-list> <md-item ng-repeat="item in items"><md-item-content md-ink-ripple flex class="inset"> <a flex aria-label="{{item.name}}" ng-click="listItemClick($index)"> <span class="md-inline-list-icon-label">{{ item.name }}</span> </a></md-item-content> </md-item> </md-list></md-bottom-sheet>',
             controller: 'ListBottomSheetCtrl',
             targetEvent: $event
           }).then(function(clickedItem) {
-            this.$scope.alert = clickedItem.name + ' clicked!';
+            this.vm.alert = clickedItem.name + ' clicked!';
           });
         };
-        this.$scope.showAdd = function(ev) {
+        this.vm.showAdd = function(ev) {
           this.$mdDialog.show({
             controller: DialogController,
             template: '<md-dialog aria-label="Mango (Fruit)"> <md-content class="md-padding"> <form name="userForm"> <div layout layout-sm="column"> <md-input-container flex> <label>First Name</label> <input ng-model="user.firstName" placeholder="Placeholder text"> </md-input-container> <md-input-container flex> <label>Last Name</label> <input ng-model="theMax"> </md-input-container> </div> <md-input-container flex> <label>Address</label> <input ng-model="user.address"> </md-input-container> <div layout layout-sm="column"> <md-input-container flex> <label>City</label> <input ng-model="user.city"> </md-input-container> <md-input-container flex> <label>State</label> <input ng-model="user.state"> </md-input-container> <md-input-container flex> <label>Postal Code</label> <input ng-model="user.postalCode"> </md-input-container> </div> <md-input-container flex> <label>Biography</label> <textarea ng-model="user.biography" columns="1" md-maxlength="150"></textarea> </md-input-container> </form> </md-content> <div class="md-actions" layout="row"> <span flex></span> <md-button ng-click="answer(\'not useful\')"> Cancel </md-button> <md-button ng-click="answer(\'useful\')" class="md-primary"> Save </md-button> </div></md-dialog>',
             targetEvent: ev,
           }).then(function(answer) {
-            this.$scope.alert = 'You said the information was "' + answer + '".';
+            this.vm.alert = 'You said the information was "' + answer + '".';
           }, function() {
-            this.$scope.alert = 'You cancelled the dialog.';
+            this.vm.alert = 'You cancelled the dialog.';
           });
         };
+    }
 
+    runTradingAlg(date, buy, sell, doNothing) {
+        var requestBody = {
+            ticker: 'goog',
+            end: date
+        };
+
+        return this.$http({
+          method: 'POST',
+          url: '/api/mean-reversion',
+          data: requestBody
+        })
+        .then((response) => {
+            if(Math.abs(((response.data.thirtyAvg/response.data.ninetyAvg)-1))<0.01) {
+                if(response.data.trending === 'downwards'){
+                    sell();
+                } else {
+                    buy();
+                }
+            } else {
+                doNothing();
+            }
+        })
+        .catch((error) => {
+            console.err(error);
+        });
+    }
+
+    awaitLoop () {
 
     }
 }
 
 angular.module('pages.dashboard', ['ngMaterial', 'ngMdIcons'])
     .controller('BacktestController', BacktestController)
-    /*
-    .controller('AppCtrl', ['$scope', '$mdBottomSheet',
-      '$mdSidenav', '$mdDialog',
-      function($scope, $mdBottomSheet, $mdSidenav, $mdDialog) {
-        $scope.toggleSidenav = function(menuId) {
-          $mdSidenav(menuId).toggle();
-        };
-        $scope.menu = [{
-          link: '',
-          title: 'Dashboard',
-          icon: 'dashboard'
-        }, {
-          link: '',
-          title: 'Friends',
-          icon: 'group'
-        }, {
-          link: '',
-          title: 'Messages',
-          icon: 'message'
-        }];
-        $scope.admin = [{
-          link: '',
-          title: 'Trash',
-          icon: 'delete'
-        }, {
-          link: 'showListBottomSheet($event)',
-          title: 'Settings',
-          icon: 'settings'
-        }];
-        $scope.activity = [{
-          what: 'Brunch this weekend?',
-          who: 'Ali Conners',
-          when: '3:08PM',
-          notes: " I'll be in your neighborhood doing errands"
-        }, {
-          what: 'Summer BBQ',
-          who: 'to Alex, Scott, Jennifer',
-          when: '3:08PM',
-          notes: "Wish I could come out but I'm out of town this weekend"
-        }, {
-          what: 'Oui Oui',
-          who: 'Sandra Adams',
-          when: '3:08PM',
-          notes: "Do you have Paris recommendations? Have you ever been?"
-        }, {
-          what: 'Birthday Gift',
-          who: 'Trevor Hansen',
-          when: '3:08PM',
-          notes: "Have any ideas of what we should get Heidi for her birthday?"
-        }, {
-          what: 'Recipe to try',
-          who: 'Brian Holt',
-          when: '3:08PM',
-          notes: "We should eat this: Grapefruit, Squash, Corn, and Tomatillo tacos"
-        }, ];
-        $scope.alert = '';
-        $scope.showListBottomSheet = function($event) {
-          $scope.alert = '';
-          $mdBottomSheet.show({
-            template: '<md-bottom-sheet class="md-list md-has-header"> <md-subheader>Settings</md-subheader> <md-list> <md-item ng-repeat="item in items"><md-item-content md-ink-ripple flex class="inset"> <a flex aria-label="{{item.name}}" ng-click="listItemClick($index)"> <span class="md-inline-list-icon-label">{{ item.name }}</span> </a></md-item-content> </md-item> </md-list></md-bottom-sheet>',
-            controller: 'ListBottomSheetCtrl',
-            targetEvent: $event
-          }).then(function(clickedItem) {
-            $scope.alert = clickedItem.name + ' clicked!';
-          });
-        };
-        $scope.showAdd = function(ev) {
-          $mdDialog.show({
-            controller: DialogController,
-            template: '<md-dialog aria-label="Mango (Fruit)"> <md-content class="md-padding"> <form name="userForm"> <div layout layout-sm="column"> <md-input-container flex> <label>First Name</label> <input ng-model="user.firstName" placeholder="Placeholder text"> </md-input-container> <md-input-container flex> <label>Last Name</label> <input ng-model="theMax"> </md-input-container> </div> <md-input-container flex> <label>Address</label> <input ng-model="user.address"> </md-input-container> <div layout layout-sm="column"> <md-input-container flex> <label>City</label> <input ng-model="user.city"> </md-input-container> <md-input-container flex> <label>State</label> <input ng-model="user.state"> </md-input-container> <md-input-container flex> <label>Postal Code</label> <input ng-model="user.postalCode"> </md-input-container> </div> <md-input-container flex> <label>Biography</label> <textarea ng-model="user.biography" columns="1" md-maxlength="150"></textarea> </md-input-container> </form> </md-content> <div class="md-actions" layout="row"> <span flex></span> <md-button ng-click="answer(\'not useful\')"> Cancel </md-button> <md-button ng-click="answer(\'useful\')" class="md-primary"> Save </md-button> </div></md-dialog>',
-            targetEvent: ev,
-          }).then(function(answer) {
-            $scope.alert = 'You said the information was "' + answer + '".';
-          }, function() {
-            $scope.alert = 'You cancelled the dialog.';
-          });
-        };
-      }
-    ])
-*/
     .controller('ListBottomSheetCtrl', function($scope, $mdBottomSheet) {
       $scope.items = [{
         name: 'Share',
