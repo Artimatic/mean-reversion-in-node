@@ -70,7 +70,8 @@
   },
   "scripts": {
     "start": "node server/app.js",
-    "security-check": "node_modules/retire/bin/retire && node_modules/nsp/bin/nsp check"
+    "security-check": "node_modules/retire/bin/retire && node_modules/nsp/bin/nsp check",
+    "postinstall": "bower install && gulp build"
   },
   "private": true
 }

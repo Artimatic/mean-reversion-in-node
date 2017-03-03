@@ -11,3 +11,10 @@ gulp.task('default', function() {
         'start-server',
         'watch');
 });
+gulp.task('build', function() {
+    runSequence(
+        [
+            'dist-main',
+            'sass-framework'
+        ]);
+});
