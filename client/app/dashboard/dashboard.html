@@ -105,7 +105,12 @@
                                  <md-datepicker ng-model="vm.backtestDate" md-placeholder="Enter date"></md-datepicker>
                              </md-input-container>
                              <div flex>
-                                 <md-button class="md-primary md-raised" ng-click="vm.runTest()">Run Backtest</md-button>
+                                 <span ng-show="!vm.resolving">
+                                     <md-button class="md-primary md-raised" ng-click="vm.runTest()">Run Backtest</md-button>
+                                 </span>
+                                 <span ng-show="vm.resolving">
+                                     <md-button ng-disabled="true" class="md-primary">Running<md-progress-circular md-mode="indeterminate"></md-progress-circular></md-button>
+                                 </span>
                              </div>
                            </div>
                            <c3chart bindto-id="chart" chart-data="vm.datapoints" chart-columns="vm.datacolumns" chart-x="vm.datax">
@@ -134,31 +139,7 @@
               layout="row" layout-align="center center">
             <md-card flex-gt-sm="90" flex-gt-md="80">
               <md-card-content>
-                <h2>Favorites</h2>
-                <md-list>
-                  <md-item ng-repeat="item in vm.activity | filter:search | orderBy:'-what'">
-                    <md-item-content>
-                      <div class="md-tile-left inset" hide-sm>
-                        <user-avatar></user-avatar>
-                      </div>
-                      <div class="md-tile-content">
-                        <h3>{{item.what}}</h3>
-                        <h4>{{item.who}}</h4>
-                        <p>
-                          {{item.notes}}
-                        </p>
-                      </div>
-                    </md-item-content>
-                    <md-divider md-inset hide-sm ng-if="!$last"></md-divider>
-                    <md-divider hide-gt-sm ng-if="!$last"></md-divider>
-                  </md-item>
-                  <md-divider></md-divider>
-                  <md-item layout class="inset">
-                    <md-button layout layout-align="start center" flex class="md-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>                      More
-                    </md-button>
-                  </md-item>
-                </md-list>
+                <h2>Tests</h2>
               </md-card-content>
             </md-card>
           </div>

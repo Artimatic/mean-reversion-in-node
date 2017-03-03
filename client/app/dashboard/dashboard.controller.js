@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 class BacktestController {
     constructor($mdDialog, $http, $window, $q) {
         this.$mdDialog = $mdDialog;
@@ -7,12 +7,14 @@ class BacktestController {
         this.$q = $q;
         this.backtestDate = new Date();
         this.datapoints=[];
-        this.datacolumns=[{'id':'top-1','type':'line','name':'Top one'},
-                            {'id':'top-2','type':'spline','name':'Top two'}];
+        this.datacolumns=[{'id':'price','type':'spline','name': 'Security', 'color': 'lightgrey'},
+                            {'id':'buy','type':'scatter','name':'Buy Signal', 'color': 'green'},
+                            {'id':'sell','type':'scatter','name':'Sell Signal', 'color': 'red'}];
         this.datax={'id':'x'};
         this.security = '';
-        this.record = [];
+        this.simulatedTrades = {};
         this.longPos = [];
+        this.resolving = false;
     }
 
     $onInit() {
@@ -39,8 +41,8 @@ class BacktestController {
           icon: 'settings'
         }];
         this.activity = [{
-          what: 'Brunch this weekend?',
-          who: 'Ali Conners',
+          what: 'Nothing here',
+          who: 'Placeholder',
           when: '3:08PM',
           notes: ' I\'ll be in your neighborhood doing errands'
         }];
@@ -57,7 +59,7 @@ class BacktestController {
         };
     }
 
-    runTradingAlg(http, security, date, buy, sell) {
+    runTradingAlg(http, security, date, record) {
         var requestBody = {
             ticker: security,
             end: date
@@ -69,11 +71,11 @@ class BacktestController {
           data: requestBody
         })
         .then((response) => {
-            if(Math.abs(((response.data.thirtyAvg/response.data.ninetyAvg)-1))<0.01) {
+            if(Math.abs(((response.data.thirtyAvg/response.data.ninetyAvg)-1))<0.015) {
                 if(response.data.trending === 'downwards'){
-                    sell();
+                    record[date] = 'sell';
                 } else {
-                    buy();
+                    record[date] = 'buy';
                 }
             }
         })
@@ -84,33 +86,29 @@ class BacktestController {
 
     processResults(quotes) {
         var moment = this.$window.moment;
-        var record = this.record;
+        var record = this.simulatedTrades;
         var tradingFn = this.runTradingAlg;
         var http = this.$http;
         var long = this.longPos;
-        //long.push({'price': value.close});
 
         var promises = quotes.map(function(value) {
-            var date = moment(value.date).format('YYYY-MM-DD');
-            var buy = () => {
-                record.push({'time': date, 'price': value.close, 'order': 'buy'});
-            };
-            var sell = () => {
-                record.push({'time': date, 'price': value.close, 'order': 'sell'});
-            };
-            return tradingFn(http, value.symbol, date, buy, sell);
+            long.push({'date': moment(value.date).format('YYYY-MM-DD'), 'price': value.close});
+            return tradingFn(http, value.symbol, moment(value.date).format('YYYY-MM-DD'), record);
         });
 
         return this.$q.all(promises);
     }
 
     runTest() {
+        if(!this.security){
+            this.security = 'goog';
+        }
         var requestBody = {
-            ticker: this.security || 'goog',
+            ticker: this.security,
             start: this.$window.moment(this.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
             end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD')
         };
-
+        this.resolving = true;
         this.$http({
           method: 'POST',
           url: '/api/quote',
@@ -125,9 +123,23 @@ class BacktestController {
             return this.processResults(data);
         })
         .then(() => {
-            console.log(this.record);
+            var ctr = 0;
+            this.longPos.forEach((value) => {
+                if(this.simulatedTrades[value.date]) {
+                    if(this.simulatedTrades[value.date] === 'buy'){
+                        this.datapoints.push({'x': value.date, 'price': value.price, 'buy': value.price});
+                    } else if(this.simulatedTrades[value.date] === 'sell'){
+                        this.datapoints.push({'x': value.date, 'price': value.price, 'sell': value.price});
+                    }
+                    ctr++;
+                } else {
+                    this.datapoints.push({'x': value.date, 'price': value.price});
+                }
+            });
+            this.resolving = false;
         })
         .catch((error) => {
+            this.resolving = false;
             console.log(error);
         });
     }

@@ -30,7 +30,7 @@ class BaseController {
     }
 
     static requestErrorHandler(reply, error) {
-        console.log('replying error');
+        console.log('error', error);
         if (error.isBoom) {
             reply.status(error.output.statusCode).send(error.output);
         } else {
