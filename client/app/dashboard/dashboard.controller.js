@@ -74,7 +74,7 @@ class BacktestController {
             if(Math.abs(((response.data.thirtyAvg/response.data.ninetyAvg)-1))<0.015) {
                 if(response.data.trending === 'downwards'){
                     record[date] = 'sell';
-                } else {
+                } else if(response.data.trending === 'upwards'){
                     record[date] = 'buy';
                 }
             }
@@ -128,7 +128,7 @@ class BacktestController {
                 if(this.simulatedTrades[value.date]) {
                     if(this.simulatedTrades[value.date] === 'buy'){
                         this.datapoints.push({'x': value.date, 'price': value.price, 'buy': value.price});
-                    } else if(this.simulatedTrades[value.date] === 'sell'){
+                    } else {
                         this.datapoints.push({'x': value.date, 'price': value.price, 'sell': value.price});
                     }
                     ctr++;

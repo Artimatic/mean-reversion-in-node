@@ -17,12 +17,14 @@ class ReversionService {
     }
 
     calculateMovingAvg (historicalData) {
-        var trend = 'downwards';
+        var trend = 'indeterminant';
         //Trend for last four days
         if((historicalData[historicalData.length-1].close>historicalData[historicalData.length-2].close) &&
-            (historicalData[historicalData.length-2].close>historicalData[historicalData.length-3].close) &&
-            (historicalData[historicalData.length-3].close>historicalData[historicalData.length-4].close)){
+            (historicalData[historicalData.length-2].close>historicalData[historicalData.length-3].close)) {
             trend = 'upwards';
+        } else if((historicalData[historicalData.length-1].close<historicalData[historicalData.length-2].close) &&
+            (historicalData[historicalData.length-2].close<historicalData[historicalData.length-3].close)) {
+                trend = 'downwards';
         }
 
         return historicalData.reduceRight((accumulator, currentValue, currentIdx) => {
