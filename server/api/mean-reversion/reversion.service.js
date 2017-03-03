@@ -18,8 +18,10 @@ class ReversionService {
 
     calculateMovingAvg (historicalData) {
         var trend = 'downwards';
-        //Trend for last three days
-        if((historicalData[historicalData.length-1].close>historicalData[historicalData.length-2].close) && (historicalData[historicalData.length-2].close>historicalData[historicalData.length-3].close)){
+        //Trend for last four days
+        if((historicalData[historicalData.length-1].close>historicalData[historicalData.length-2].close) &&
+            (historicalData[historicalData.length-2].close>historicalData[historicalData.length-3].close) &&
+            (historicalData[historicalData.length-3].close>historicalData[historicalData.length-4].close)){
             trend = 'upwards';
         }
 
