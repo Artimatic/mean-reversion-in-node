@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class BacktestController {
     constructor($mdDialog, $http, $window, $q) {
         this.$mdDialog = $mdDialog;
@@ -12,6 +12,7 @@ class BacktestController {
         this.datax={'id':'x'};
         this.security = '';
         this.record = [];
+        this.longPos = [];
     }
 
     $onInit() {
@@ -56,13 +57,13 @@ class BacktestController {
         };
     }
 
-    runTradingAlg(date, buy, sell) {
+    runTradingAlg(http, security, date, buy, sell) {
         var requestBody = {
-            ticker: 'goog',
+            ticker: security,
             end: date
         };
 
-        return this.$http({
+        return http({
           method: 'POST',
           url: '/api/mean-reversion',
           data: requestBody
@@ -81,13 +82,23 @@ class BacktestController {
         });
     }
 
-    getResults(questions) {
-        var promises = questions.map(function(question) {
-            return this.$http({
-                url   : 'upload/question',
-                method: 'POST',
-                data  : question
-            });
+    processResults(quotes) {
+        var moment = this.$window.moment;
+        var record = this.record;
+        var tradingFn = this.runTradingAlg;
+        var http = this.$http;
+        var long = this.longPos;
+        //long.push({'price': value.close});
+
+        var promises = quotes.map(function(value) {
+            var date = moment(value.date).format('YYYY-MM-DD');
+            var buy = () => {
+                record.push({'time': date, 'price': value.close, 'order': 'buy'});
+            };
+            var sell = () => {
+                record.push({'time': date, 'price': value.close, 'order': 'sell'});
+            };
+            return tradingFn(http, value.symbol, date, buy, sell);
         });
 
         return this.$q.all(promises);
@@ -95,7 +106,7 @@ class BacktestController {
 
     runTest() {
         var requestBody = {
-            ticker: 'goog',
+            ticker: this.security || 'goog',
             start: this.$window.moment(this.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
             end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD')
         };
@@ -107,20 +118,17 @@ class BacktestController {
         })
         .then((response) => {
             this.datapoints = [];
-            response.data.forEach((value, idx) => {
-                var date = this.$window.moment(value.date).format('YYYY-MM-DD');
-                var buy = () => {
-                    this.record.push({'id': idx, 'time': date, 'price': value.close, 'order': 'buy'});
-                };
-                var sell = () => {
-                    this.record.push({'id': idx, 'time': date, 'price': value.close, 'order': 'sell'});
-                };
-                this.datapoints.push({'x': date, 'top-1': value.close});
-                this.runTradingAlg(date, buy, sell);
-            });
+            return response.data;
+        })
+        .then((data) => {
+            this.processResults.bind(this);
+            return this.processResults(data);
+        })
+        .then(() => {
+            console.log(this.record);
         })
         .catch((error) => {
-            console.err(error);
+            console.log(error);
         });
     }
 }
