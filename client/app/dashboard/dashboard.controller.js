@@ -100,6 +100,9 @@ class BacktestController {
     }
 
     runTest() {
+        this.simulatedTrades = {};
+        this.longPos = [];
+        this.dataPoints = [];
         if(!this.security){
             this.security = 'goog';
         }

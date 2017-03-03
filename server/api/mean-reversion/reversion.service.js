@@ -8,7 +8,7 @@ const QuoteService = require('./../quote/quote.service.js');
 class ReversionService {
     getData(security, currentTime) {
         var endDate = moment(currentTime).format();
-        var startDate = moment(currentTime).subtract(300, 'days').format();
+        var startDate = moment(currentTime).subtract(200, 'days').format();
 
         return QuoteService.getData(security, startDate, endDate)
             .then(this.calculateMovingAvg)
@@ -35,6 +35,15 @@ class ReversionService {
                 break;
                 case historicalData.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
+                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'upward') {
+                    trend = 'upwards';
+                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'upward') {
+                    trend = 'downward';
+                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'downward') {
+                    trend = 'indeterminant';
+                } else if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'downward') {
+                    trend = 'upwards';
+                }
                 break;
             }
             return accumulator;
