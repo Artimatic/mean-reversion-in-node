@@ -7,7 +7,7 @@ class BacktestController {
         this.$q = $q;
         this.backtestDate = new Date();
         this.datapoints=[];
-        this.datacolumns=[{'id':'price','type':'spline','name': 'Security', 'color': 'lightgrey'},
+        this.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
                             {'id':'buy','type':'scatter','name':'Buy Signal', 'color': 'green'},
                             {'id':'sell','type':'scatter','name':'Sell Signal', 'color': 'red'}];
         this.datax={'id':'x'};
