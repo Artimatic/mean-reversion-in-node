@@ -108,7 +108,7 @@ class BacktestController {
         }
         var requestBody = {
             ticker: this.security,
-            start: this.$window.moment(this.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
+            start: this.$window.moment(this.backtestDate).subtract(90, 'days').format('YYYY-MM-DD'),
             end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD')
         };
         this.resolving = true;
