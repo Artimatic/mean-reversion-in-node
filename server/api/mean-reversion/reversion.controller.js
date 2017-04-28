@@ -14,12 +14,23 @@ class QuoteController extends BaseController {
         super();
     }
 
-    runTest(request, response) {
+    getAlgoData(request, response) {
         if (_.isEmpty(request.body)) {
             return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
         }
         else {
             ReversionService.getData(request.body.ticker, request.body.end)
+                .then((data) => BaseController.requestGetSuccessHandler(response, data))
+                .catch((err) => BaseController.requestErrorHandler(response, err));
+        }
+    }
+
+    runBacktest(request, response) {
+        if (_.isEmpty(request.body)) {
+            return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
+        }
+        else {
+            ReversionService.runTest(request.body.ticker, request.body.end)
                 .then((data) => BaseController.requestGetSuccessHandler(response, data))
                 .catch((err) => BaseController.requestErrorHandler(response, err));
         }

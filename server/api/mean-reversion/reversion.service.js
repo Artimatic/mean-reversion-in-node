@@ -1,6 +1,7 @@
 'use strict';
 const _ = require('lodash');
 const moment = require('moment');
+const assert = require('assert');
 
 const errors = require('../../components/errors/baseErrors');
 const QuoteService = require('./../quote/quote.service.js');
@@ -11,12 +12,32 @@ class ReversionService {
         var startDate = moment(currentTime).subtract(200, 'days').format();
 
         return QuoteService.getData(security, startDate, endDate)
-            .then(this.calculateMovingAvg)
+            .then(this.getDecisionData)
             .then(data => data)
             .catch(err => err);
     }
 
-    calculateMovingAvg (historicalData) {
+    runBacktest(security, currentTime) {
+        var endDate = moment(currentTime).format();
+        var startDate = moment(currentTime).subtract(6, 'months').format();
+
+        return QuoteService.getData(security, startDate, endDate)
+            .then(this.calculateForBacktest)
+            .then(data => data)
+            .catch(err => err);
+    }
+
+    //90 days, +90 days for earliest moving average
+    calculateForBacktest(historicalData) {
+        try{
+            assert(historicalData.length >= 180, 'Not enough data to proceed.');
+        } catch(error){
+
+        }
+        var startIdx = historicalData - 90;
+    }
+
+    getDecisionData (historicalData) {
         var trend = 'indeterminant';
         //Trend for last four days
         if((historicalData[historicalData.length-1].close>historicalData[historicalData.length-2].close) &&
