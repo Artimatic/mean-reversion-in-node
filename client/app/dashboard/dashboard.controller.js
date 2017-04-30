@@ -85,11 +85,11 @@ class BacktestController {
     }
 
     processResults(quotes) {
-        var moment = this.$window.moment;
-        var record = this.simulatedTrades;
-        var tradingFn = this.runTradingAlg;
-        var http = this.$http;
-        var long = this.longPos;
+        var moment = this.$window.moment,
+            record = this.simulatedTrades,
+            tradingFn = this.runTradingAlg,
+            http = this.$http,
+            long = this.longPos;
 
         var promises = quotes.map(function(value) {
             long.push({'date': moment(value.date).format('YYYY-MM-DD'), 'price': value.close});
@@ -122,7 +122,6 @@ class BacktestController {
             return response.data;
         })
         .then((data) => {
-            this.processResults.bind(this);
             return this.processResults(data);
         })
         .then(() => {
