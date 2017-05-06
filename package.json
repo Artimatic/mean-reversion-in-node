@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "server/app.js",
   "dependencies": {
+    "assert": "~1.4.1",
     "ajv": "^4.9.0",
     "bluebird": "^3.4.6",
     "body-parser": "~1.5.0",
