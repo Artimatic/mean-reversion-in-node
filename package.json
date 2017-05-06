@@ -1,6 +1,6 @@
 {
-  "name": "starter",
-  "version": "0.0.0",
+  "name": "mean-reversion-in-node",
+  "version": "0.0.1",
   "main": "server/app.js",
   "dependencies": {
     "ajv": "^4.9.0",
