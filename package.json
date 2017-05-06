@@ -65,7 +65,7 @@
     "babel-preset-stage-0": "^6.5.0"
   },
   "engines": {
-    "node": ">=4.2.3"
+    "node": ">=6.10.0"
   },
   "scripts": {
     "start": "node server/app.js",
