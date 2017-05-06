@@ -56,9 +56,9 @@ class ReversionService {
                 break;
                 case historicalData.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
-                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'upward') {
+                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'upwards') {
                     trend = 'upwards';
-                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'upward') {
+                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'upwards') {
                     trend = 'downward';
                 } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'downward') {
                     trend = 'indeterminant';
