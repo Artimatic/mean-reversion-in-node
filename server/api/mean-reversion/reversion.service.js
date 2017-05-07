@@ -17,37 +17,66 @@ class ReversionService {
             .catch(err => err);
     }
 
-    runBacktest(security, currentTime, startDate) {
-        var endDate = moment(currentTime).format();
-        var start = moment(startDate).subtract(200, 'days').format();
+    runBacktest(security, currentTime, startDate, deviation) {
+        var endDate     = moment(currentTime).format(),
+            start       = moment(startDate).subtract(140, 'days').format();
+
+        deviation = parseFloat(deviation);
+
+        if(isNaN(deviation)) {
+            throw errors.InvalidArgumentsError();
+        }
 
         return QuoteService.getData(security, start, endDate)
                 .then(data =>{
-                    return this.calculateForBacktest(data,this.getDecisionData);
+                    return this.calculateForBacktest(data, this.getDecisionData);
                 })
-                .then(data =>{
-                    return data;
+                .then(decisions =>{
+                    return this.getReturns(decisions, deviation, startDate);
                 })
                 .then(data => data)
                 .catch(err => {
-                    console.log(err);
-                    throw err;
+                    console.log('Error ',err);
+                    throw errors.InvalidArgumentsError();
                 });
     }
 
     //90 days, +90 days for earliest moving average
     calculateForBacktest(historicalData, fn) {
-        var dec = historicalData.reduce(function(accumulator, value, idx){
+        return historicalData.reduce(function(accumulator, value, idx){
             if(idx >= 90) {
                 var decision = fn(historicalData, idx, idx - 90);
                 accumulator.push(decision);
             }
             return accumulator;
         },[]);
-        return dec;
     }
 
-    getDecisionData (historicalData, startIdx, dataStartIdx) {
+    getReturns(decisions, deviation, startDate) {
+        var results = decisions.reduce(function(orders, day) {
+            if(moment(day.date).isAfter(moment(startDate).subtract(1,'day').format())) {
+                if(Math.abs(((day.thirtyAvg/day.ninetyAvg) - 1)) < deviation) {
+                    if(day.trending === 'downwards'){
+                        //Sell
+                        if(orders.buy.length > 0) {
+                            var holding = orders.buy.shift();
+                            console.log(day.date,' sell at ', day.close, ' bought at ', holding)
+                            orders.returns += day.close - holding;
+                        }
+                    } else if(day.trending === 'upwards'){
+                        //Buy
+                        orders.buy.push(day.close);
+                    }
+                }
+            }
+            return orders;
+        }, {buy:[], returns:0});
+
+        decisions.push({totalReturn: results.returns});
+        return decisions;
+    }
+
+    getDecisionData(historicalData, startIdx, dataStartIdx) {
         var trend,
             trends = {
                 down:  'downwards',
@@ -73,8 +102,10 @@ class ReversionService {
                 trend = trends.down;
         }
         var data = historicalData.slice(dataStartIdx, startIdx)
+
         return data.reduceRight((accumulator, currentValue, currentIdx) => {
             accumulator.total += currentValue.close;
+
             switch (currentIdx) {
                 case data.length - 30:
                     accumulator.thirtyAvg = accumulator.total/30;
@@ -90,15 +121,18 @@ class ReversionService {
                 } else if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === trends.down) {
                     trend = trends.up;
                 }
+                accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
                 break;
             }
             return accumulator;
         }, {
+            date: data[data.length-1].date,
+            trending: trend,
+            deviation: null,
             thirtyAvg: null,
             ninetyAvg: null,
-            total: 0,
-            totalLength: historicalData.length,
-            trending: trend
+            close: data[data.length-1].close,
+            total: 0
         });
     }
 }
