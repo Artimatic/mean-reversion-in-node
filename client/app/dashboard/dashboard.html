@@ -97,7 +97,7 @@
                   <md-item>
                     <md-item-content>
                       <div class="md-tile-content">
-                          <div layout-gt-sm="row">
+                          <form name="inputForm" ng-submit="vm.runTest()" novalidate>
                               <md-input-container class="md-block" flex-gt-sm>
                                 <label>Security</label>
                                 <input ng-model="vm.security" placeholder="GOOG" ng-pattern="/\S{1,10}/" required>
@@ -107,13 +107,13 @@
                              </md-input-container>
                              <div flex>
                                  <span ng-show="!vm.resolving">
-                                     <md-button class="md-primary md-raised" ng-click="vm.runTest()">Run Backtest</md-button>
+                                     <md-button type="submit" class="md-primary md-raised">Run Test</md-button>
                                  </span>
                                  <span ng-show="vm.resolving">
-                                     <md-button ng-disabled="true" class="md-primary">Running<md-progress-circular md-mode="indeterminate"></md-progress-circular></md-button>
+                                     <md-button ng-disabled="true" class="md-primary"><md-progress-circular md-mode="indeterminate"></md-progress-circular></md-button>
                                  </span>
                              </div>
-                           </div>
+                         </form>
                            <c3chart bindto-id="chart" chart-data="vm.datapoints" chart-columns="vm.datacolumns" chart-x="vm.datax">
                              <chart-axis>
                                <chart-axis-x axis-id="x" axis-type="timeseries">

@@ -59,9 +59,11 @@ class ReversionService {
                     if(day.trending === 'downwards'){
                         //Sell
                         if(orders.buy.length > 0) {
-                            var holding = orders.buy.shift();
-                            console.log(day.date,' sell at ', day.close, ' bought at ', holding)
-                            orders.returns += day.close - holding;
+                            var holding = orders.buy.shift(),
+                                totalReturn = day.close - holding,
+                                percentReturn = totalReturn/holding;
+
+                            orders.returns += percentReturn;
                         }
                     } else if(day.trending === 'upwards'){
                         //Buy
