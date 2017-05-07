@@ -23,15 +23,15 @@ class BaseController {
 
     static requestGetSuccessHandler(reply, data) {
         if (_.isEmpty(data) || data.Count === 0) {
-            reply().code(204);
+            reply.status(204);
         } else {
           reply.status(200).send(data);
         }
     }
 
     static requestErrorHandler(reply, error) {
-        console.log('error', error);
-        if (error.isBoom) {
+        console.log('Error!', error);
+        if (error) {
             reply.status(error.output.statusCode).send(error.output);
         } else {
             reply.status(Boom.badImplementation().output.statusCode).send(Boom.badImplementation().output);

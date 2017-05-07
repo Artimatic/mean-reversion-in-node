@@ -17,53 +17,78 @@ class ReversionService {
             .catch(err => err);
     }
 
-    runBacktest(security, currentTime) {
+    runBacktest(security, currentTime, startDate) {
         var endDate = moment(currentTime).format();
-        var startDate = moment(currentTime).subtract(6, 'months').format();
+        var start = moment(startDate).subtract(200, 'days').format();
 
-        return QuoteService.getData(security, startDate, endDate)
-            .then(this.calculateForBacktest)
-            .then(data => data)
-            .catch(err => err);
+        return QuoteService.getData(security, start, endDate)
+                .then(data =>{
+                    return this.calculateForBacktest(data,this.getDecisionData);
+                })
+                .then(data =>{
+                    return data;
+                })
+                .then(data => data)
+                .catch(err => {
+                    console.log(err);
+                    throw err;
+                });
     }
 
     //90 days, +90 days for earliest moving average
-    calculateForBacktest(historicalData) {
-        try{
-            assert(historicalData.length >= 180, 'Not enough data to proceed.');
-        } catch(error){
-
-        }
-        var startIdx = historicalData - 90;
+    calculateForBacktest(historicalData, fn) {
+        var dec = historicalData.reduce(function(accumulator, value, idx){
+            if(idx >= 90) {
+                var decision = fn(historicalData, idx, idx - 90);
+                accumulator.push(decision);
+            }
+            return accumulator;
+        },[]);
+        return dec;
     }
 
-    getDecisionData (historicalData) {
-        var trend = 'indeterminant';
-        //Trend for last four days
-        if((historicalData[historicalData.length-1].close>historicalData[historicalData.length-2].close) &&
-            (historicalData[historicalData.length-2].close>historicalData[historicalData.length-3].close)) {
-            trend = 'upwards';
-        } else if((historicalData[historicalData.length-1].close<historicalData[historicalData.length-2].close) &&
-            (historicalData[historicalData.length-2].close<historicalData[historicalData.length-3].close)) {
-                trend = 'downwards';
+    getDecisionData (historicalData, startIdx, dataStartIdx) {
+        var trend,
+            trends = {
+                down:  'downwards',
+                up: 'upwards',
+                indet: 'indeterminant'
+            };
+
+        trend = trends.down;
+
+        if(startIdx === undefined) {
+            startIdx = historicalData.length-1;
         }
 
-        return historicalData.reduceRight((accumulator, currentValue, currentIdx) => {
+        if(dataStartIdx === undefined) {
+            dataStartIdx = 0;
+        }
+        //Trend for last four days
+        if((historicalData[startIdx].close>historicalData[startIdx-1].close) &&
+            (historicalData[startIdx-1].close>historicalData[startIdx-2].close)) {
+            trend = trends.up;
+        } else if((historicalData[startIdx].close<historicalData[startIdx-1].close) &&
+            (historicalData[startIdx-1].close<historicalData[startIdx-2].close)) {
+                trend = trends.down;
+        }
+        var data = historicalData.slice(dataStartIdx, startIdx)
+        return data.reduceRight((accumulator, currentValue, currentIdx) => {
             accumulator.total += currentValue.close;
             switch (currentIdx) {
-                case historicalData.length - 30:
+                case data.length - 30:
                     accumulator.thirtyAvg = accumulator.total/30;
                 break;
-                case historicalData.length - 90:
+                case data.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
-                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'upwards') {
-                    trend = 'upwards';
-                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'upwards') {
-                    trend = 'downward';
-                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === 'downward') {
-                    trend = 'indeterminant';
-                } else if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === 'downward') {
-                    trend = 'upwards';
+                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === trends.up) {
+                    trend = trends.up;
+                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === trends.up) {
+                    trend = trends.down;
+                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === trends.down) {
+                    trend = trends.indet;
+                } else if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === trends.down) {
+                    trend = trends.up;
                 }
                 break;
             }

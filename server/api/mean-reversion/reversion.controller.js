@@ -30,7 +30,7 @@ class QuoteController extends BaseController {
             return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
         }
         else {
-            ReversionService.runTest(request.body.ticker, request.body.end)
+            ReversionService.runBacktest(request.body.ticker, request.body.end, request.body.start)
                 .then((data) => BaseController.requestGetSuccessHandler(response, data))
                 .catch((err) => BaseController.requestErrorHandler(response, err));
         }
