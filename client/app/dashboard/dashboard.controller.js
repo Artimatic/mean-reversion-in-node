@@ -59,85 +59,43 @@ class BacktestController {
         };
     }
 
-    runTradingAlg(http, security, date, record) {
-        var requestBody = {
-            ticker: security,
-            end: date
-        };
-
-        return http({
-          method: 'POST',
-          url: '/api/mean-reversion',
-          data: requestBody
-        })
-        .then((response) => {
-            if(Math.abs(((response.data.thirtyAvg/response.data.ninetyAvg)-1))<0.015) {
-                if(response.data.trending === 'downwards'){
-                    record[date] = 'sell';
-                } else if(response.data.trending === 'upwards'){
-                    record[date] = 'buy';
-                }
-            }
-        })
-        .catch((error) => {
-            console.err(error);
-        });
-    }
-
-    processResults(quotes) {
-        var moment = this.$window.moment,
-            record = this.simulatedTrades,
-            tradingFn = this.runTradingAlg,
-            http = this.$http,
-            long = this.longPos;
-
-        var promises = quotes.map(function(value) {
-            long.push({'date': moment(value.date).format('YYYY-MM-DD'), 'price': value.close});
-            return tradingFn(http, value.symbol, moment(value.date).format('YYYY-MM-DD'), record);
-        });
-
-        return this.$q.all(promises);
-    }
-
     runTest() {
-        this.simulatedTrades = {};
-        this.longPos = [];
-        this.dataPoints = [];
         if(!this.security){
             this.security = 'goog';
         }
         var requestBody = {
             ticker: this.security,
             start: this.$window.moment(this.backtestDate).subtract(90, 'days').format('YYYY-MM-DD'),
-            end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD')
+            end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
+            deviation: 0.015
         };
         this.resolving = true;
         this.$http({
           method: 'POST',
-          url: '/api/quote',
+          url: '/api/mean-reversion/backtest',
           data: requestBody
         })
         .then((response) => {
-            this.datapoints = [];
             return response.data;
         })
         .then((data) => {
-            return this.processResults(data);
-        })
-        .then(() => {
-            var ctr = 0;
-            this.longPos.forEach((value) => {
-                if(this.simulatedTrades[value.date]) {
-                    if(this.simulatedTrades[value.date] === 'buy'){
-                        this.datapoints.push({'x': value.date, 'price': value.price, 'buy': value.price});
+            this.dataPoints = [];
+            var day = null;
+
+            for(var i = 0; i < data.length; i++) {
+                day = data[i];
+                if(day.deviation < 0.015) {
+                    if(day.trending === 'downwards') {
+                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
+                    } else if(day.trending === 'upwards') {
+                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
                     } else {
-                        this.datapoints.push({'x': value.date, 'price': value.price, 'sell': value.price});
+                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close});
                     }
-                    ctr++;
                 } else {
-                    this.datapoints.push({'x': value.date, 'price': value.price});
+                    this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close});
                 }
-            });
+            }
             this.resolving = false;
         })
         .catch((error) => {
