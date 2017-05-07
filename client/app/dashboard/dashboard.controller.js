@@ -79,7 +79,7 @@ class BacktestController {
             return response.data;
         })
         .then((data) => {
-            this.dataPoints = [];
+            this.datapoints = [];
             var day = null;
 
             for(var i = 0; i < data.length; i++) {
