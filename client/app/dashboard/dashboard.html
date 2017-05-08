@@ -1,9 +1,8 @@
 <div layout="row" ng-controller="BacktestController as vm">
   <div layout="column" class="relative" layout-fill role="main">
-    <md-content flex md-scroll-y>
+    <md-content flex>
       <ui-view layout="column" layout-fill layout-padding>
         <div class="inset" hide-sm></div>
-        <div aria-labelledby="tab1" md-swipe-left="vm.next()" md-swipe-right="vm.previous()" layout="row" layout-align="center center">
           <div layout="column">
             <div flex>
               <form name="inputForm" layout-gt-sm="row" ng-submit="vm.runTest()" novalidate>
