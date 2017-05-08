@@ -1,6 +1,7 @@
 @import 'c3.min';
 
 $gray: #eee;
+$money: #0da445;
 
 md-content.md-default-theme {
   background-color: $gray;
@@ -35,4 +36,21 @@ md-sidenav {
     position: relative;
     top: 5px; // adjust for svg viewbox
   }
+}
+
+.c3-axis {
+   fill: #5b5959;
+   font-size:12px;
+}
+
+path.domain { stroke: #fff; }
+.tick text { fill: #fff; }
+.c3-legend-item text { fill: #fff; }
+.c3 line { stroke: #fff; }
+.c3-tooltip td {
+    font-size:13px;
+    padding: 3px 6px;
+    background-color:#000;
+    border-left:1px dotted #DCDCDC;
+    color: #fff;
 }

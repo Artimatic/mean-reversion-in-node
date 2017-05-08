@@ -4,8 +4,7 @@ angular.module('main', [
   'ui.router',
 ])
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
-    $urlRouterProvider
-      .otherwise('/');
+    $urlRouterProvider.otherwise('/home');
 
     $locationProvider.html5Mode(true);
 });

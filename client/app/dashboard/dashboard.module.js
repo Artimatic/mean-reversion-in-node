@@ -5,3 +5,4 @@ angular
 
 require('./dashboard.controller');
 require('./dashboard.routes');
+require('./dashboard.filter');
