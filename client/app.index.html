@@ -15,35 +15,32 @@
       <script src="/dist/framework/index.js"></script>
     </head>
     <body>
-        <div >
-            <md-toolbar>
-              <div class="md-toolbar-tools">
-                <md-button hide-gt-md aria-label="Menu">
-                  <ng-md-icon icon="menu"></ng-md-icon>
-                </md-button>
-                <h3>
-                    Home
-                  </h3>
-                <span flex></span>
-                <md-button aria-label="Search">
-                  <ng-md-icon icon="search"></ng-md-icon>
-                </md-button>
-                <md-button aria-label="Open Settings">
-                  <ng-md-icon icon="more_vert"></ng-md-icon>
-                </md-button>
-              </div>
-              <md-tabs md-stretch-tabs class="md-primary">
-                <md-tab id="tab1" aria-controls="tab1-content">
-                  <span ui-sref="home">Mean Reversion V1</span>
-                </md-tab>
-                <md-tab id="tab2" aria-controls="tab2-content">
-                    Mean Reversion V2
-                </md-tab>
-              </md-tabs>
-            </md-toolbar>
+        <md-toolbar>
+          <div class="md-toolbar-tools">
+            <md-button hide-gt-md aria-label="Menu">
+              <ng-md-icon icon="menu"></ng-md-icon>
+            </md-button>
+            <h3>
+                Home
+              </h3>
+            <span flex></span>
+            <md-button aria-label="Search">
+              <ng-md-icon icon="search"></ng-md-icon>
+            </md-button>
+            <md-button aria-label="Open Settings">
+              <ng-md-icon icon="more_vert"></ng-md-icon>
+            </md-button>
+          </div>
+          <md-tabs md-stretch-tabs class="md-primary">
+            <md-tab id="tab1" aria-controls="tab1-content">
+              <span ui-sref="home">Mean Reversion V1</span>
+            </md-tab>
+            <md-tab id="tab2" aria-controls="tab2-content">
+                Mean Reversion V2
+            </md-tab>
+          </md-tabs>
+        </md-toolbar>
 
-            <div ui-view></div>
-        </div>
-
+        <div ui-view></div>
     </body>
 </html>

@@ -12,7 +12,7 @@
                   <input ng-model="vm.security" placeholder="GOOG" ng-pattern="/\S{1,10}/" required>
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-sm>
-                  <md-datepicker ng-model="vm.backtestDate" md-placeholder="Enter date"></md-datepicker>
+                    <input type="date" name="input" ng-model="vm.backtestDate" placeholder="Date" required />
                 </md-input-container>
                 <div flex>
                   <span ng-show="!vm.resolving">
