@@ -2,12 +2,18 @@
 
 $gray: #eee;
 $money: #0da445;
+$white: #fff;
+
+body {
+    color: rgba(255,255,255,1.0);
+    background-color: rgb(48,48,48);
+}
 
 md-content.md-default-theme {
   background-color: $gray;
 }
 md-card {
-  background-color: #fff;
+  background-color: $white;
   h2:first-of-type {
     margin-top: 0;
   }
@@ -28,7 +34,7 @@ h2 {
 }
 md-toolbar:not(.md-hue-1),
 .md-fab {
-  fill: #fff;
+  fill: $white;
 }
 md-sidenav {
   fill: #737373;
@@ -43,14 +49,14 @@ md-sidenav {
    font-size:12px;
 }
 
-path.domain { stroke: #fff; }
-.tick text { fill: #fff; }
-.c3-legend-item text { fill: #fff; }
-.c3 line { stroke: #fff; }
+path.domain { stroke: $white; }
+.tick text { fill: $white; }
+.c3-legend-item text { fill: $white; }
+.c3 line { stroke: $white; }
 .c3-tooltip td {
     font-size:13px;
     padding: 3px 6px;
     background-color:#000;
     border-left:1px dotted #DCDCDC;
-    color: #fff;
+    color: $white;
 }
