@@ -2,9 +2,29 @@
 const _ = require('lodash');
 const moment = require('moment');
 const assert = require('assert');
+const algebra = require("algebra.js")
 
 const errors = require('../../components/errors/baseErrors');
 const QuoteService = require('./../quote/quote.service.js');
+
+const trends = {
+    down:  'downwards',
+    up: 'upwards',
+    indet: 'indeterminant'
+};
+
+function getTrendLogic(thirtyDay, ninetyDay, trend) {
+    if(thirtyDay > ninetyDay && trend === trends.up) {
+        trend = trends.down;
+    } else if(thirtyDay < ninetyDay && trend === trends.up) {
+        trend = trends.up;
+    } else if(thirtyDay < ninetyDay && trend === trends.down) {
+        trend = trends.up;
+    } else if(thirtyDay > ninetyDay && trend === trends.down) {
+        trend = trends.down;
+    }
+    return trend;
+}
 
 class ReversionService {
     getData(security, currentTime) {
@@ -79,14 +99,7 @@ class ReversionService {
     }
 
     getDecisionData(historicalData, startIdx, dataStartIdx) {
-        var trend,
-            trends = {
-                down:  'downwards',
-                up: 'upwards',
-                indet: 'indeterminant'
-            };
-
-        trend = trends.down;
+        var trend = trends.down;
 
         if(startIdx === undefined) {
             startIdx = historicalData.length-1;
@@ -114,16 +127,8 @@ class ReversionService {
                 break;
                 case data.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
-                if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === trends.up) {
-                    trend = trends.up;
-                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === trends.up) {
-                    trend = trends.down;
-                } else if(accumulator.thirtyAvg < accumulator.ninetyAvg && trend === trends.down) {
-                    trend = trends.indet;
-                } else if(accumulator.thirtyAvg > accumulator.ninetyAvg && trend === trends.down) {
-                    trend = trends.up;
-                }
-                accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
+                    accumulator.trending = getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend);
+                    accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
                 break;
             }
             return accumulator;
