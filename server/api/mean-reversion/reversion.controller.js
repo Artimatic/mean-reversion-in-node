@@ -36,12 +36,12 @@ class ReversionController extends BaseController {
         }
     }
 
-    setPrice(request, response) {
+    getPrice(request, response) {
         if (_.isEmpty(request.body)) {
             return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
         }
         else {
-            ReversionService.setPrice(request.body.ticker, request.body.end, request.body.deviation)
+            ReversionService.getPrice(request.body.ticker, request.body.end, request.body.deviation)
                 .then((data) => BaseController.requestGetSuccessHandler(response, data))
                 .catch((err) => BaseController.requestErrorHandler(response, err));
         }

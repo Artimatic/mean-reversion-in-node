@@ -3,6 +3,7 @@ const _ = require('lodash');
 const moment = require('moment');
 const assert = require('assert');
 const algebra = require("algebra.js");
+const math = require("mathjs");
 
 const errors = require('../../components/errors/baseErrors');
 const QuoteService = require('./../quote/quote.service.js');
@@ -30,6 +31,68 @@ function getTrendLogic(thirtyDay, ninetyDay, trend) {
     return trend;
 }
 
+function solveExpression(thirtyAvgTotal, ninetyAvgTotal, acceptedDeviation) {
+    let thirtyFraction              = math.fraction(math.number(math.round(thirtyAvgTotal, 3))),
+        ninetyFraction              = math.fraction(math.number(math.round(ninetyAvgTotal, 3))),
+        leftConstant                = math.multiply(thirtyFraction, math.fraction('1/30')),
+        rightConstant               = math.multiply(ninetyFraction, math.fraction('1/90')),
+        leftConstantFraction        = new Fraction(leftConstant.n, leftConstant.d),
+        rightConstantFraction       = new Fraction(rightConstant.n, rightConstant.d),
+        leftCoefficient             = new Fraction(1, 30),
+        rightCoefficient            = new Fraction(1, 90);
+
+    let leftSide = new Expression('x');
+    leftSide = leftSide.multiply(leftCoefficient);
+    leftSide = leftSide.add(leftConstantFraction);
+
+    let rightSide = new Expression('x');
+    rightSide = rightSide.multiply(rightCoefficient);
+    rightSide = rightSide.add(rightConstantFraction);
+
+    let eq = null;
+
+    eq = new Equation(leftSide, rightSide);
+
+    let x = eq.solveFor('x');
+    let perfectPrice = fractionToPrice(x.toString());
+
+    acceptedDeviation = math.number(math.round(acceptedDeviation, 3));
+
+    let lowerbound = findLowerbound(leftSide.toString(), rightSide.toString(), 0, perfectPrice, acceptedDeviation);
+
+    return {upper: perfectPrice, lower: lowerbound};
+}
+
+function findLowerbound(fn1, fn2, lower, upper, acceptedDifference) {
+    let mid,
+        avg1,
+        avg2,
+        result = -1;
+
+
+    while(lower<=upper) {
+        mid = math.round((upper+lower)/2, 2)
+        avg1 = math.eval(fn1, {x: mid});
+        avg2 = math.eval(fn2, {x: mid});
+
+        if(math.compare(differenceAcceptance(avg1, avg2), acceptedDifference) > 0){
+            lower = mid + 0.01;
+            result = mid;
+        } else {
+            upper = mid - 0.01;
+        }
+    }
+    return result;
+}
+
+function differenceAcceptance(v1, v2) {
+    return Math.abs(Math.abs(v1-v2)/((v1+v2)/2));
+}
+
+function fractionToPrice(fraction) {
+    return math.round(math.eval(fraction), 2);
+}
+
 class ReversionService {
     getData(security, currentTime) {
         let endDate = moment(currentTime).format(),
@@ -39,6 +102,33 @@ class ReversionService {
             .then(this.getDecisionData)
             .then(data => data)
             .catch(err => err);
+    }
+
+    getPrice(security, currentTime, deviation) {
+        let endDate     = moment(currentTime).format(),
+            start       = moment(currentTime).subtract(140, 'days').format();
+
+            var quotes      = null;
+
+            deviation = parseFloat(deviation);
+
+            if(isNaN(deviation)) {
+                throw errors.InvalidArgumentsError();
+            }
+
+            return QuoteService.getData(security, start, endDate)
+                    .then(data =>{
+                        quotes = data;
+                        return data;
+                    })
+                    .then(this.getDecisionData)
+                    .then(decision => {
+                        return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
+                    })
+                    .then(data => data)
+                    .catch(err => {
+                        throw errors.InvalidArgumentsError();
+                    });
     }
 
     runBacktest(security, currentTime, startDate, deviation) {
@@ -60,7 +150,6 @@ class ReversionService {
                 })
                 .then(data => data)
                 .catch(err => {
-                    console.log('Error ',err);
                     throw errors.InvalidArgumentsError();
                 });
     }
@@ -70,6 +159,7 @@ class ReversionService {
         return historicalData.reduce(function(accumulator, value, idx){
             if(idx >= 90) {
                 let decision = fn(historicalData, idx, idx - 90);
+
                 accumulator.push(decision);
             }
             return accumulator;
@@ -79,7 +169,7 @@ class ReversionService {
     getReturns(decisions, deviation, startDate) {
         let results = decisions.reduce(function(orders, day) {
             if(moment(day.date).isAfter(moment(startDate).subtract(1,'day').format())) {
-                if(Math.abs(((day.thirtyAvg/day.ninetyAvg) - 1)) < deviation) {
+                if(differenceAcceptance(day.thirtyAvg, day.ninetyAvg) < deviation) {
                     if(day.trending === 'downwards'){
                         //Sell
                         if(orders.buy.length > 0) {
@@ -120,18 +210,21 @@ class ReversionService {
             (historicalData[endIdx-1].close<historicalData[endIdx-2].close)) {
                 trend = trends.down;
         }
-        let data = historicalData.slice(startIdx, endIdx)
+        let data = historicalData.slice(startIdx, endIdx+1);
 
         return data.reduceRight((accumulator, currentValue, currentIdx) => {
             accumulator.total += currentValue.close;
             switch (currentIdx) {
                 case data.length - 30:
                     accumulator.thirtyAvg = accumulator.total/30;
+                    accumulator.thirtyTotal = accumulator.total;
                 break;
                 case data.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
+                    accumulator.ninetyTotal = accumulator.total;
                     accumulator.trending = getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend);
-                    accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
+                    accumulator.deviation = differenceAcceptance(accumulator.thirtyAvg,accumulator.ninetyAvg);
+                    //accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
                 break;
             }
             return accumulator;
@@ -141,8 +234,9 @@ class ReversionService {
             deviation: null,
             thirtyAvg: null,
             ninetyAvg: null,
-            counter: 0,
             close: data[data.length-1].close,
+            thirtyTotal: 0,
+            ninetyTotal: 0,
             total: 0
         });
     }
@@ -155,33 +249,14 @@ class ReversionService {
     * @param {float} ninetyAvg 90 day average
     * @param {float} deviation Accepted deviation from intersection
     */
-    getPricing(historicalData, endIdx, thirtyAvg, ninetyAvg, deviation) {
-        let thirtyAvgTotal = thirtyAvg * 30,
-            ninetyAvgTotal = ninetyAvg * 90;
+    calcPricing(historicalData, endIdx, thirtyAvgTotal, ninetyAvgTotal, deviation) {
         //Subtract the last price
-        thirtyAvgTotal -= historicalData[historicalData.length-30];
-        ninetyAvgTotal -= historicalData[historicalData.length-90];
+        thirtyAvgTotal -= historicalData[endIdx-29].close; //{value.closing}
+        ninetyAvgTotal -= historicalData[endIdx-89].close;
 
-        let leftConstant = new Fraction(thirtyAvgTotal, 30),
-            rightConstant = new Fraction(ninetyAvgTotal, 90),
-            leftCoefficient = new Fraction(1, 30),
-            rightCoefficient = new Fraction(1, 90);
+        let range = solveExpression(thirtyAvgTotal, ninetyAvgTotal, deviation);
 
-        let leftSide = new Expression('x');
-            leftSide = leftSide.multiply(leftCoefficient);
-            leftSide = leftSide.add(leftConstant);
-
-        let rightSide = new Expression('x');
-        rightSide = rightSide.multiply(rightCoefficient);
-        rightSide = rightSide.add(rightConstant);
-
-        let eq = new Equation(leftSide, rightSide);
-        console.log(eq.toString());
-
-        let x = eq.solveFor('x');
-
-        console.log("x = " + x.toString());
-        return x;
+        return range;
     }
 }
 

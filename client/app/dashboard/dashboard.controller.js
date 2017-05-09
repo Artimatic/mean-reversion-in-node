@@ -16,6 +16,7 @@ class BacktestController {
         this.longPos = [];
         this.resolving = false;
         this.performance = null;
+        this.acceptedDifference = 0.010;
     }
 
     $onInit() {
@@ -68,7 +69,7 @@ class BacktestController {
             ticker: this.security,
             start: this.$window.moment(this.backtestDate).subtract(6, 'months').format('YYYY-MM-DD'),
             end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
-            deviation: 0.015
+            deviation: this.acceptedDifference
         };
         this.resolving = true;
         this.$http({
@@ -86,7 +87,7 @@ class BacktestController {
 
             for(var i = 0; i < data.length; i++) {
                 day = data[i];
-                if(day.deviation < 0.015) {
+                if(day.deviation < this.acceptedDifference) {
                     if(day.trending === 'downwards') {
                         this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
                     } else if(day.trending === 'upwards') {

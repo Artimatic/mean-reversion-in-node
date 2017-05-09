@@ -30,7 +30,6 @@ class BaseController {
     }
 
     static requestErrorHandler(reply, error) {
-        console.log('Error!', error);
         if (error) {
             reply.status(error.output.statusCode).send(error.output);
         } else {
