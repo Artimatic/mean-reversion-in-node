@@ -17,6 +17,7 @@ class BacktestController {
         this.resolving = false;
         this.performance = null;
         this.acceptedDifference = 0.010;
+        this.prices = {};
     }
 
     $onInit() {
@@ -67,7 +68,7 @@ class BacktestController {
         }
         var requestBody = {
             ticker: this.security,
-            start: this.$window.moment(this.backtestDate).subtract(6, 'months').format('YYYY-MM-DD'),
+            start: this.$window.moment(this.backtestDate).subtract(4, 'years').format('YYYY-MM-DD'),
             end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
             deviation: this.acceptedDifference
         };
@@ -78,9 +79,7 @@ class BacktestController {
           data: requestBody
         })
         .then((response) => {
-            return response.data;
-        })
-        .then((data) => {
+            var data = response.data;
             this.datapoints = [];
             this.performance = data[data.length-1].totalReturn;
             var day = null;
@@ -103,6 +102,37 @@ class BacktestController {
         })
         .catch((error) => {
             this.resolving = false;
+            console.log(error);
+        });
+
+        var pricingBody = {
+            ticker: this.security,
+            end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
+            deviation: this.acceptedDifference
+        };
+
+        this.prices = {};
+
+        this.$http({
+          method: 'POST',
+          url: '/api/mean-reversion/pricing',
+          data: pricingBody
+        })
+        .then((response) => {
+            if(response.data.lower < 0) {
+                this.prices.lowerbound = 0;
+            } else {
+                this.prices.lowerbound = response.data.lower;
+            }
+
+            if(response.data.lower < 0) {
+                this.prices.upperbound = 0;
+            } else {
+                this.prices.upperbound = response.data.upper;
+
+            }
+        })
+        .catch((error) => {
             console.log(error);
         });
     }

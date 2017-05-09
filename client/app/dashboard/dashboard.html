@@ -51,14 +51,21 @@
                       </md-card-title-text>
                     </md-card-title>
                     <md-list>
-                  <md-list-item class="md-2-line" layout="row"
-                      layout-wrap>
-                    <div class="performance-panel md-item-text md-whiteframe-z1" flex>
-                      <h3>{{vm.performance | percentage:2}}</h3>
-                      <p>Performance</p>
-                    </div>
-                  </md-list-item>
-                </md-list>
+                      <md-list-item class="md-2-line" layout="row"
+                          layout-wrap>
+                        <div class="performance-panel md-item-text md-whiteframe-z1" flex>
+                          <h3>{{vm.performance | percentage:2}}</h3>
+                          <p>Performance</p>
+                        </div>
+                      </md-list-item>
+                      <md-list-item class="md-2-line" layout="row"
+                          layout-wrap>
+                        <div class="performance-panel md-item-text md-whiteframe-z1" flex>
+                          <h3>{{vm.prices.lowerbound | currency}}-{{vm.prices.upperbound | currency}}</h3>
+                          <p>Tomorrows Trade Range</p>
+                        </div>
+                      </md-list-item>
+                    </md-list>
                 </md-card>
             </div>
           </div>

@@ -69,7 +69,6 @@ function findLowerbound(fn1, fn2, lower, upper, acceptedDifference) {
         avg2,
         result = -1;
 
-
     while(lower<=upper) {
         mid = math.round((upper+lower)/2, 2)
         avg1 = math.eval(fn1, {x: mid});
