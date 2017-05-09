@@ -2,10 +2,14 @@
 const _ = require('lodash');
 const moment = require('moment');
 const assert = require('assert');
-const algebra = require("algebra.js")
+const algebra = require("algebra.js");
 
 const errors = require('../../components/errors/baseErrors');
 const QuoteService = require('./../quote/quote.service.js');
+
+const Fraction = algebra.Fraction;
+const Expression = algebra.Expression;
+const Equation = algebra.Equation;
 
 const trends = {
     down:  'downwards',
@@ -28,8 +32,8 @@ function getTrendLogic(thirtyDay, ninetyDay, trend) {
 
 class ReversionService {
     getData(security, currentTime) {
-        var endDate = moment(currentTime).format();
-        var startDate = moment(currentTime).subtract(200, 'days').format();
+        let endDate = moment(currentTime).format(),
+            startDate = moment(currentTime).subtract(200, 'days').format();
 
         return QuoteService.getData(security, startDate, endDate)
             .then(this.getDecisionData)
@@ -38,7 +42,7 @@ class ReversionService {
     }
 
     runBacktest(security, currentTime, startDate, deviation) {
-        var endDate     = moment(currentTime).format(),
+        let endDate     = moment(currentTime).format(),
             start       = moment(startDate).subtract(140, 'days').format();
 
         deviation = parseFloat(deviation);
@@ -65,7 +69,7 @@ class ReversionService {
     calculateForBacktest(historicalData, fn) {
         return historicalData.reduce(function(accumulator, value, idx){
             if(idx >= 90) {
-                var decision = fn(historicalData, idx, idx - 90);
+                let decision = fn(historicalData, idx, idx - 90);
                 accumulator.push(decision);
             }
             return accumulator;
@@ -73,13 +77,13 @@ class ReversionService {
     }
 
     getReturns(decisions, deviation, startDate) {
-        var results = decisions.reduce(function(orders, day) {
+        let results = decisions.reduce(function(orders, day) {
             if(moment(day.date).isAfter(moment(startDate).subtract(1,'day').format())) {
                 if(Math.abs(((day.thirtyAvg/day.ninetyAvg) - 1)) < deviation) {
                     if(day.trending === 'downwards'){
                         //Sell
                         if(orders.buy.length > 0) {
-                            var holding = orders.buy.shift(),
+                            let holding = orders.buy.shift(),
                                 totalReturn = day.close - holding,
                                 percentReturn = totalReturn/holding;
 
@@ -98,29 +102,28 @@ class ReversionService {
         return decisions;
     }
 
-    getDecisionData(historicalData, startIdx, dataStartIdx) {
-        var trend = trends.down;
+    getDecisionData(historicalData, endIdx, startIdx) {
+        let trend = trends.down;
+
+        if(endIdx === undefined) {
+            endIdx = historicalData.length-1;
+        }
 
         if(startIdx === undefined) {
-            startIdx = historicalData.length-1;
-        }
-
-        if(dataStartIdx === undefined) {
-            dataStartIdx = 0;
+            startIdx = 0;
         }
         //Trend for last four days
-        if((historicalData[startIdx].close>historicalData[startIdx-1].close) &&
-            (historicalData[startIdx-1].close>historicalData[startIdx-2].close)) {
+        if((historicalData[endIdx].close>historicalData[endIdx-1].close) &&
+            (historicalData[endIdx-1].close>historicalData[endIdx-2].close)) {
             trend = trends.up;
-        } else if((historicalData[startIdx].close<historicalData[startIdx-1].close) &&
-            (historicalData[startIdx-1].close<historicalData[startIdx-2].close)) {
+        } else if((historicalData[endIdx].close<historicalData[endIdx-1].close) &&
+            (historicalData[endIdx-1].close<historicalData[endIdx-2].close)) {
                 trend = trends.down;
         }
-        var data = historicalData.slice(dataStartIdx, startIdx)
+        let data = historicalData.slice(startIdx, endIdx)
 
         return data.reduceRight((accumulator, currentValue, currentIdx) => {
             accumulator.total += currentValue.close;
-
             switch (currentIdx) {
                 case data.length - 30:
                     accumulator.thirtyAvg = accumulator.total/30;
@@ -138,9 +141,47 @@ class ReversionService {
             deviation: null,
             thirtyAvg: null,
             ninetyAvg: null,
+            counter: 0,
             close: data[data.length-1].close,
             total: 0
         });
+    }
+
+    /*
+    * Get tomorrow's price range that will set off buy/sell signal aka Money Function
+    * @param {object[]} historicalData  Array of QuoteService
+    * @param {integer} endIdx Last index
+    * @param {float} thirtyAvg 30 day average
+    * @param {float} ninetyAvg 90 day average
+    * @param {float} deviation Accepted deviation from intersection
+    */
+    getPricing(historicalData, endIdx, thirtyAvg, ninetyAvg, deviation) {
+        let thirtyAvgTotal = thirtyAvg * 30,
+            ninetyAvgTotal = ninetyAvg * 90;
+        //Subtract the last price
+        thirtyAvgTotal -= historicalData[historicalData.length-30];
+        ninetyAvgTotal -= historicalData[historicalData.length-90];
+
+        let leftConstant = new Fraction(thirtyAvgTotal, 30),
+            rightConstant = new Fraction(ninetyAvgTotal, 90),
+            leftCoefficient = new Fraction(1, 30),
+            rightCoefficient = new Fraction(1, 90);
+
+        let leftSide = new Expression('x');
+            leftSide = leftSide.multiply(leftCoefficient);
+            leftSide = leftSide.add(leftConstant);
+
+        let rightSide = new Expression('x');
+        rightSide = rightSide.multiply(rightCoefficient);
+        rightSide = rightSide.add(rightConstant);
+
+        let eq = new Equation(leftSide, rightSide);
+        console.log(eq.toString());
+
+        let x = eq.solveFor('x');
+
+        console.log("x = " + x.toString());
+        return x;
     }
 }
 

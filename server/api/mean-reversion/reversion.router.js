@@ -9,3 +9,7 @@ exports.reversion = function (req, res, next) {
 exports.backtest = function (req, res, next) {
   ReversionController.runBacktest(req, res);
 };
+
+exports.pricing = function (req, res, next) {
+  ReversionController.getPrice(req, res);
+};
