@@ -173,10 +173,9 @@ class ReversionService {
                         //Sell
                         if(orders.buy.length > 0) {
                             let holding = orders.buy.shift(),
-                                totalReturn = day.close - holding,
-                                percentReturn = totalReturn/holding;
-
-                            orders.returns += percentReturn;
+                                profit = day.close - holding;
+                            orders.total += holding;
+                            orders.net += profit;
                         }
                     } else if(day.trending === 'upwards'){
                         //Buy
@@ -185,9 +184,11 @@ class ReversionService {
                 }
             }
             return orders;
-        }, {buy:[], returns:0});
+        }, {buy:[], total:0, net:0,});
 
-        decisions.push({totalReturn: results.returns});
+        let returns = results.net/results.total;
+
+        decisions.push({totalReturn: returns});
         return decisions;
     }
 
@@ -223,7 +224,6 @@ class ReversionService {
                     accumulator.ninetyTotal = accumulator.total;
                     accumulator.trending = getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend);
                     accumulator.deviation = differenceAcceptance(accumulator.thirtyAvg,accumulator.ninetyAvg);
-                    //accumulator.deviation = Math.abs(((accumulator.thirtyAvg/accumulator.ninetyAvg)-1));
                 break;
             }
             return accumulator;
