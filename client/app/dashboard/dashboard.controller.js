@@ -1,74 +1,29 @@
 'use strict';
-class BacktestController {
-    constructor ($mdDialog, $http, $window, $q) {
-        this.$mdDialog = $mdDialog;
-        this.$http = $http;
-        this.$window = $window;
-        this.$q = $q;
-        this.backtestDate = new Date();
-        this.datapoints=[];
-        this.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
-                            {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
-                            {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
-        this.datax={'id':'x'};
-        this.security = '';
-        this.simulatedTrades = {};
-        this.longPos = [];
-        this.resolving = false;
-        this.performance = null;
-        this.acceptedDifference = 0.010;
-        this.prices = {lowerbound: 0, upperbound: 0};
-        this.trade = 'Neutral';
-    }
+function BacktestController ($http) {
+    var vm = this;
+    vm.backtestDate = new Date();
+    vm.datapoints=[];
+    vm.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
+                        {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
+                        {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
+    vm.datax={'id':'x'};
+    vm.security = '';
+    vm.simulatedTrades = {};
+    vm.longPos = [];
+    vm.resolving = false;
+    vm.performance = null;
+    vm.acceptedDifference = 0.010;
+    vm.prices = {lowerbound: 0, upperbound: 0};
+    vm.trade = 'Neutral';
+    vm.data = null;
 
-    $onInit () {
-        this.menu = [{
-          link: '',
-          title: 'Dashboard',
-          icon: 'dashboard'
-        }, {
-          link: '',
-          title: 'Friends',
-          icon: 'group'
-        }, {
-          link: '',
-          title: 'Messages',
-          icon: 'message'
-        }];
-        this.admin = [{
-          link: '',
-          title: 'Trash',
-          icon: 'delete'
-        }, {
-          link: 'showListBottomSheet($event)',
-          title: 'Settings',
-          icon: 'settings'
-        }];
-        this.activity = [{
-          what: 'Nothing here',
-          who: 'Placeholder',
-          when: '3:08PM',
-          notes: ' I\'ll be in your neighborhood doing errands'
-        }];
-        this.alert = '';
-        this.showListBottomSheet = function($event) {
-          this.alert = '';
-          this.$mdBottomSheet.show({
-            template: '<md-bottom-sheet class="md-list md-has-header"> <md-subheader>Settings</md-subheader> <md-list> <md-item ng-repeat="item in items"><md-item-content md-ink-ripple flex class="inset"> <a flex aria-label="{{item.name}}" ng-click="listItemClick($index)"> <span class="md-inline-list-icon-label">{{ item.name }}</span> </a></md-item-content> </md-item> </md-list></md-bottom-sheet>',
-            controller: 'ListBottomSheetCtrl',
-            targetEvent: $event
-          }).then(function(clickedItem) {
-            this.alert = clickedItem.name + ' clicked!';
-          });
-        };
-    }
-    dateFn (x) {
+    vm.dateFn = function (x) {
         return moment(x).format('MM/DD');
-    }
-    titleFormatFunction (x) {
+    };
+    vm.titleFormatFunction = function (x) {
         return moment(x).format('MM-DD-YYYY');
-    }
-    tooltipContents (d) {
+    };
+    vm.tooltipContents = function (d) {
         let title = '<tr><th>'+moment(d[0].x).format('MM-DD-YYYY')+'</th></tr>',
             body = '<tr><td>',
             value = d[0].index;
@@ -80,88 +35,96 @@ class BacktestController {
         } else {
             body += 'price: ';
         }
-        body += d[0].value+'</td></tr>';
+        body += math.round(d[0].value,2)+'</td></tr>';
         if(value) {
-            body += '<tr><td>{{vm.datapoints['+value+']}}</td></tr>';
+            body += '<tr><td>30 day MA: '+math.round(vm.data[value].thirtyAvg,2)+'</td></tr>';
+            body += '<tr><td>90 day MA: '+math.round(vm.data[value].ninetyAvg,2)+'</td></tr>';
+            body += '<tr><td>%difference: '+math.multply(math.round(vm.data[value].deviation,3),100)+'%</td></tr>';
         }
-        console.log(d);
         return '<table class="c3-tooltip">'+title+body+'</table>';
 
-    }
-    runTest () {
-        if(!this.security){
-            this.security = 'goog';
+    };
+    vm.runTest = function() {
+        if(!vm.security){
+            vm.security = 'goog';
         }
         var requestBody = {
-            ticker: this.security,
-            start: moment(this.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
-            end: moment(this.backtestDate).format('YYYY-MM-DD'),
-            deviation: this.acceptedDifference
+            ticker: vm.security,
+            start: moment(vm.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
+            end: moment(vm.backtestDate).format('YYYY-MM-DD'),
+            deviation: vm.acceptedDifference
         };
-        this.resolving = true;
-        this.$http({
+        vm.resolving = true;
+        $http({
           method: 'POST',
           url: '/api/mean-reversion/backtest',
           data: requestBody
         })
         .then((response) => {
             var data = response.data;
-            this.datapoints = [];
-            this.performance = data[data.length-1].totalReturn;
+            vm.datapoints = [];
+            vm.performance = data[data.length-1].totalReturn;
             var day = null;
 
             for(var i = 0; i < data.length; i++) {
                 day = data[i];
-                if(day.deviation < this.acceptedDifference) {
+                if(day.deviation < vm.acceptedDifference) {
                     if(day.trending === 'downwards') {
-                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
+                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
                     } else if(day.trending === 'upwards') {
-                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
+                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
                     } else {
-                        this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close});
+                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
                     }
                 } else {
-                    this.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close});
+                    vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
                 }
             }
-            this.resolving = false;
+            vm.data = data;
+            vm.resolving = false;
         })
         .catch((error) => {
-            this.resolving = false;
+            vm.resolving = false;
             console.log(error);
         });
 
         var pricingBody = {
-            ticker: this.security,
-            end: moment(this.backtestDate).format('YYYY-MM-DD'),
-            deviation: this.acceptedDifference
+            ticker: vm.security,
+            end: moment(vm.backtestDate).format('YYYY-MM-DD'),
+            deviation: vm.acceptedDifference
         };
 
-        this.prices = {};
+        vm.prices = {};
 
-        this.$http({
+        $http({
           method: 'POST',
           url: '/api/mean-reversion/pricing',
           data: pricingBody
         })
         .then((response) => {
             if(response.data.lower.price < 0) {
-                this.prices.lowerbound = 0;
+                vm.prices.lowerbound = 0;
             } else {
-                this.prices.lowerbound = response.data.lower.price;
+                vm.prices.lowerbound = response.data.lower.price;
             }
 
             if(response.data.upper.price < 0) {
-                this.prices.upperbound = 0;
+                vm.prices.upperbound = 0;
             } else {
-                this.prices.upperbound = response.data.upper.price;
-
+                vm.prices.upperbound = response.data.upper.price;
+            }
+            if(response.data.lower.trend === 'downwards' && response.data.upper.trend === 'downwards') {
+                vm.trade = 'Sell';
+            } else if(response.data.lower.trend === 'upwards' && response.data.upper.trend === 'upwards') {
+                vm.trade = 'Buy';
+            } else {
+                vm.trade = 'Neutral';
             }
         })
         .catch((error) => {
             console.log(error);
         });
-    }
+    };
 }
 
 angular.module('pages.dashboard', ['ngMaterial', 'ngMdIcons'])
@@ -180,8 +143,5 @@ angular.module('pages.dashboard', ['ngMaterial', 'ngMdIcons'])
     });
 
 BacktestController.$inject = [
-    '$mdDialog',
-    '$http',
-    '$window',
-    '$q'
+    '$http'
 ];

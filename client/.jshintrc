@@ -25,6 +25,7 @@
     "$": true,
     "_": true,
     "moment": true,
+    "math": true,
     "describe": true,
     "beforeEach": true,
     "module": true,
