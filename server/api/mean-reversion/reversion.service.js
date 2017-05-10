@@ -31,6 +31,18 @@ function getTrendLogic(thirtyDay, ninetyDay, trend) {
     return trend;
 }
 
+function getInitialTrend(quotes, end) {
+    let trend = trends.indet;
+    if((quotes[end].close>quotes[end-1].close) &&
+        (quotes[end-1].close>quotes[end-2].close)) {
+        trend = trends.up;
+    } else if((quotes[end].close<quotes[end-1].close) &&
+        (quotes[end-1].close<quotes[end-2].close)) {
+            trend = trends.down;
+    }
+    return trend;
+}
+
 function solveExpression(thirtyAvgTotal, ninetyAvgTotal, acceptedDeviation) {
     let thirtyFraction              = math.fraction(math.number(math.round(thirtyAvgTotal, 3))),
         ninetyFraction              = math.fraction(math.number(math.round(ninetyAvgTotal, 3))),
@@ -60,7 +72,12 @@ function solveExpression(thirtyAvgTotal, ninetyAvgTotal, acceptedDeviation) {
 
     let lowerbound = findLowerbound(leftSide.toString(), rightSide.toString(), 0, perfectPrice, acceptedDeviation);
 
-    return {upper: perfectPrice, lower: lowerbound};
+    let lowerThirtyAvg = math.divide(math.add(thirtyAvgTotal, lowerbound), 30);
+    let upperThirtyAvg = math.divide(math.add(thirtyAvgTotal, perfectPrice), 30);
+    let lowerNinetyAvg = math.divide(math.add(thirtyAvgTotal, lowerbound), 30);
+    let upperNinetyAvg = math.divide(math.add(thirtyAvgTotal, perfectPrice), 30);
+    return {upper: {price: perfectPrice,thirtyDay:upperThirtyAvg,ninetyDay:upperNinetyAvg},
+            lower: {price:lowerbound, thirtyDay:lowerThirtyAvg,ninetyDay:lowerNinetyAvg}};
 }
 
 function findLowerbound(fn1, fn2, lower, upper, acceptedDifference) {
@@ -73,7 +90,6 @@ function findLowerbound(fn1, fn2, lower, upper, acceptedDifference) {
         mid = math.round((upper+lower)/2, 2)
         avg1 = math.eval(fn1, {x: mid});
         avg2 = math.eval(fn2, {x: mid});
-console.log('tracer ', mid, avg1, avg2);
         if(math.compare(differenceAcceptance(avg1, avg2), acceptedDifference) > 0){
             lower = mid + 0.01;
         } else {
@@ -93,21 +109,27 @@ function fractionToPrice(fraction) {
 }
 
 class ReversionService {
-    getData(security, currentTime) {
-        let endDate = moment(currentTime).format(),
-            startDate = moment(currentTime).subtract(200, 'days').format();
+    getTrend(quotes, end, thirtyDay, ninetyDay) {
+        let trend = getInitialTrend(quotes, end);
+        trend = getTrendLogic(thirtyDay, ninetyDay, trend);
+        return trend;
+    }
+    getData(ticker, currentDate) {
+        let endDate = moment(currentDate).format(),
+            startDate = moment(currentDate).subtract(200, 'days').format();
 
-        return QuoteService.getData(security, startDate, endDate)
+        return QuoteService.getData(ticker, startDate, endDate)
             .then(this.getDecisionData)
             .then(data => data)
             .catch(err => err);
     }
 
-    getPrice(security, currentTime, deviation) {
-        let endDate     = moment(currentTime).format(),
-            start       = moment(currentTime).subtract(140, 'days').format();
+    getPrice(ticker, currentDate, deviation) {
+        let endDate     = moment(currentDate).format(),
+            start       = moment(currentDate).subtract(140, 'days').format();
 
-            var quotes      = null;
+            var quotes      = null,
+                decisions   = null;
 
             deviation = parseFloat(deviation);
 
@@ -115,23 +137,30 @@ class ReversionService {
                 throw errors.InvalidArgumentsError();
             }
 
-            return QuoteService.getData(security, start, endDate)
+            return QuoteService.getData(ticker, start, endDate)
                     .then(data =>{
                         quotes = data;
                         return data;
                     })
                     .then(this.getDecisionData)
-                    .then(decision => {
-                        return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
+                    .then(data => {
+                        decisions = data;
+                        return this.calcPricing(quotes, quotes.length-1, data.thirtyTotal, data.ninetyTotal, deviation);
                     })
-                    .then(data => data)
+                    .then(price =>{
+                        let trend1 = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg);
+                        let trend2 = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg);
+                        price.lower.trend = trend1;
+                        price.upper.trend = trend2;
+                        return price;
+                    })
                     .catch(err => {
                         throw errors.InvalidArgumentsError();
                     });
     }
 
-    runBacktest(security, currentTime, startDate, deviation) {
-        let endDate     = moment(currentTime).format(),
+    runBacktest(ticker, currentDate, startDate, deviation) {
+        let endDate     = moment(currentDate).format(),
             start       = moment(startDate).subtract(140, 'days').format();
 
         deviation = parseFloat(deviation);
@@ -140,7 +169,7 @@ class ReversionService {
             throw errors.InvalidArgumentsError();
         }
 
-        return QuoteService.getData(security, start, endDate)
+        return QuoteService.getData(ticker, start, endDate)
                 .then(data =>{
                     return this.calculateForBacktest(data, this.getDecisionData);
                 })
@@ -202,7 +231,7 @@ class ReversionService {
         if(startIdx === undefined) {
             startIdx = 0;
         }
-        //Trend for last four days
+
         if((historicalData[endIdx].close>historicalData[endIdx-1].close) &&
             (historicalData[endIdx-1].close>historicalData[endIdx-2].close)) {
             trend = trends.up;

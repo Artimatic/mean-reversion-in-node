@@ -1,6 +1,6 @@
 'use strict';
 class BacktestController {
-    constructor($mdDialog, $http, $window, $q) {
+    constructor ($mdDialog, $http, $window, $q) {
         this.$mdDialog = $mdDialog;
         this.$http = $http;
         this.$window = $window;
@@ -21,7 +21,7 @@ class BacktestController {
         this.trade = 'Neutral';
     }
 
-    $onInit() {
+    $onInit () {
         this.menu = [{
           link: '',
           title: 'Dashboard',
@@ -62,13 +62,23 @@ class BacktestController {
           });
         };
     }
-    dateFn(x) {
+    dateFn (x) {
         return moment(x).format('MM/DD');
     }
-    titleFormatFunction(x) {
+    titleFormatFunction (x) {
         return moment(x).format('MM-DD-YYYY');
     }
-    runTest() {
+    tooltipContents (d) {
+        let template = '<p>',
+            title = '<h1>'+this.dateFn(d[0].x)+'</h1>';
+
+        if(d[1].value) {
+            template +
+        }
+        return '<p class="tooltip--left"><md-tooltip md-direction="left">'+title+'</md-tooltip></p>';
+
+    }
+    runTest () {
         if(!this.security){
             this.security = 'goog';
         }
@@ -125,16 +135,16 @@ class BacktestController {
           data: pricingBody
         })
         .then((response) => {
-            if(response.data.lower < 0) {
+            if(response.data.lower.price < 0) {
                 this.prices.lowerbound = 0;
             } else {
-                this.prices.lowerbound = response.data.lower;
+                this.prices.lowerbound = response.data.lower.price;
             }
 
-            if(response.data.lower < 0) {
+            if(response.data.upper.price < 0) {
                 this.prices.upperbound = 0;
             } else {
-                this.prices.upperbound = response.data.upper;
+                this.prices.upperbound = response.data.upper.price;
 
             }
         })
