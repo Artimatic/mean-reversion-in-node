@@ -18,6 +18,7 @@ class BacktestController {
         this.performance = null;
         this.acceptedDifference = 0.010;
         this.prices = {};
+
     }
 
     $onInit() {
@@ -61,7 +62,12 @@ class BacktestController {
           });
         };
     }
-
+    dateFn(x) {
+        return moment(x).format('MM/DD');
+    }
+    titleFormatFunction(x) {
+        return moment(x).format('MM-DD-YYYY');
+    }
     runTest() {
         if(!this.security){
             this.security = 'goog';
@@ -107,7 +113,7 @@ class BacktestController {
 
         var pricingBody = {
             ticker: this.security,
-            end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
+            end: moment(this.backtestDate).format('YYYY-MM-DD'),
             deviation: this.acceptedDifference
         };
 
