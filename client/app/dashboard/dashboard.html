@@ -32,7 +32,8 @@
                     </md-card-title>
                   <md-card-content>
                       <div class="md-tile-content">
-                        <c3chart bindto-id="chart" chart-data="vm.datapoints" chart-columns="vm.datacolumns" chart-x="vm.datax">
+                        <c3chart bindto-id="chart" chart-data="vm.datapoints" chart-columns="vm.datacolumns"
+                            chart-x="vm.datax" enable-zoom="true">
                           <chart-axis>
                             <chart-axis-x axis-id="x" axis-type="timeseries" axis-x-format="%Y-%m-%d">
                               <chart-axis-x-tick tick-format-function="vm.dateFn" />
@@ -63,7 +64,13 @@
                           layout-wrap>
                         <div class="performance-panel md-item-text md-whiteframe-z1" flex>
                           <h3>{{vm.prices.lowerbound | currency}}-{{vm.prices.upperbound | currency}}</h3>
-                          <p>Next Signal</p>
+                          <p>Trade Range</p>
+                        </div>
+                      </md-list-item>
+                      <md-list-item class="md-2-line" layout="row"
+                          layout-wrap>
+                        <div class="performance-panel md-item-text md-whiteframe-z1" flex>
+                          <h3>{{vm.trade}}</h3>
                         </div>
                       </md-list-item>
                     </md-list>

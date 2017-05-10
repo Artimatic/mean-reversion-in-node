@@ -73,12 +73,12 @@ function findLowerbound(fn1, fn2, lower, upper, acceptedDifference) {
         mid = math.round((upper+lower)/2, 2)
         avg1 = math.eval(fn1, {x: mid});
         avg2 = math.eval(fn2, {x: mid});
-
+console.log('tracer ', mid, avg1, avg2);
         if(math.compare(differenceAcceptance(avg1, avg2), acceptedDifference) > 0){
             lower = mid + 0.01;
-            result = mid;
         } else {
             upper = mid - 0.01;
+            result = mid;
         }
     }
     return result;

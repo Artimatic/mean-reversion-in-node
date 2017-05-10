@@ -17,8 +17,8 @@ class BacktestController {
         this.resolving = false;
         this.performance = null;
         this.acceptedDifference = 0.010;
-        this.prices = {};
-
+        this.prices = {lowerbound: 0, upperbound: 0};
+        this.trade = 'Neutral';
     }
 
     $onInit() {
@@ -74,8 +74,8 @@ class BacktestController {
         }
         var requestBody = {
             ticker: this.security,
-            start: this.$window.moment(this.backtestDate).subtract(4, 'years').format('YYYY-MM-DD'),
-            end: this.$window.moment(this.backtestDate).format('YYYY-MM-DD'),
+            start: moment(this.backtestDate).subtract(3, 'years').format('YYYY-MM-DD'),
+            end: moment(this.backtestDate).format('YYYY-MM-DD'),
             deviation: this.acceptedDifference
         };
         this.resolving = true;
