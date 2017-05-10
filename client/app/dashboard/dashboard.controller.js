@@ -82,7 +82,7 @@ class BacktestController {
         }
         body += d[0].value+'</td></tr>';
         if(value) {
-            body += '<tr><td>vm.datapoints['+value+']</td></tr>';
+            body += '<tr><td>{{vm.datapoints['+value+']}}</td></tr>';
         }
         console.log(d);
         return '<table class="c3-tooltip">'+title+body+'</table>';
