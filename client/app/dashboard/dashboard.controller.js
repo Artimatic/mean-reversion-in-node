@@ -69,13 +69,23 @@ class BacktestController {
         return moment(x).format('MM-DD-YYYY');
     }
     tooltipContents (d) {
-        let template = '<p>',
-            title = '<h1>'+this.dateFn(d[0].x)+'</h1>';
+        let title = '<tr><th>'+moment(d[0].x).format('MM-DD-YYYY')+'</th></tr>',
+            body = '<tr><td>',
+            value = d[0].index;
 
         if(d[1].value) {
-            template +
+            body += 'buy: ';
+        } else if(d[2].value) {
+            body += 'sell: ';
+        } else {
+            body += 'price: ';
         }
-        return '<p class="tooltip--left"><md-tooltip md-direction="left">'+title+'</md-tooltip></p>';
+        body += d[0].value+'</td></tr>';
+        if(value) {
+            body += '<tr><td>vm.datapoints['+value+']</td></tr>';
+        }
+        console.log(d);
+        return '<table class="c3-tooltip">'+title+body+'</table>';
 
     }
     runTest () {
@@ -84,7 +94,7 @@ class BacktestController {
         }
         var requestBody = {
             ticker: this.security,
-            start: moment(this.backtestDate).subtract(3, 'years').format('YYYY-MM-DD'),
+            start: moment(this.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
             end: moment(this.backtestDate).format('YYYY-MM-DD'),
             deviation: this.acceptedDifference
         };
