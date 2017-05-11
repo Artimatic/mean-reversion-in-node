@@ -2,6 +2,7 @@
 function BacktestController ($http) {
     var vm = this;
     vm.backtestDate = new Date();
+    vm.backtestStartDate = moment(vm.backtestDate).subtract(3, 'years').toDate();
     vm.datapoints=[];
     vm.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
                         {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
@@ -13,6 +14,7 @@ function BacktestController ($http) {
     vm.resolving = false;
     vm.performance = null;
     vm.acceptedDifference = 0.010;
+    vm.recommendedDifference = 0;
     vm.prices = {lowerbound: 0, upperbound: 0};
     vm.trade = 'Neutral';
     vm.data = null;
@@ -39,7 +41,7 @@ function BacktestController ($http) {
         if(value) {
             body += '<tr><td>30 day MA: '+math.round(vm.data[value].thirtyAvg,2)+'</td></tr>';
             body += '<tr><td>90 day MA: '+math.round(vm.data[value].ninetyAvg,2)+'</td></tr>';
-            body += '<tr><td>%difference: '+math.multply(math.round(vm.data[value].deviation,3),100)+'%</td></tr>';
+            body += '<tr><td>difference: '+math.round(vm.data[value].deviation,3)+'</td></tr>';
         }
         return '<table class="c3-tooltip">'+title+body+'</table>';
 
@@ -50,10 +52,11 @@ function BacktestController ($http) {
         }
         var requestBody = {
             ticker: vm.security,
-            start: moment(vm.backtestDate).subtract(1, 'years').format('YYYY-MM-DD'),
+            start: moment(vm.backtestStartDate).format('YYYY-MM-DD'),
             end: moment(vm.backtestDate).format('YYYY-MM-DD'),
             deviation: vm.acceptedDifference
         };
+
         vm.resolving = true;
         $http({
           method: 'POST',
@@ -64,9 +67,10 @@ function BacktestController ($http) {
             var data = response.data;
             vm.datapoints = [];
             vm.performance = data[data.length-1].totalReturn;
+            vm.recommendedDifference = data[data.length-1].recommendedDifference;
             var day = null;
 
-            for(var i = 0; i < data.length; i++) {
+            for(var i = 0; i < data.length-1; i++) {
                 day = data[i];
                 if(day.deviation < vm.acceptedDifference) {
                     if(day.trending === 'downwards') {

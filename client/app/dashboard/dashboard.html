@@ -11,7 +11,14 @@
                   <input ng-model="vm.security" placeholder="GOOG" ng-pattern="/\S{1,10}/" required>
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-sm>
-                    <input type="date" name="input" ng-model="vm.backtestDate" placeholder="Date" required />
+                    <input type="date" name="input" ng-model="vm.backtestDate" min="vm.backtestStartDate" placeholder="Beginning" required />
+                </md-input-container>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <input type="date" name="input" ng-model="vm.backtestStartDate" max="vm.backtestDate" placeholder="End" required />
+                </md-input-container>
+                <md-input-container class="md-icon-float md-icon-right md-block">
+                  <label>Accepted % Difference</label>
+                  <input ng-model="vm.acceptedDifference" type="number" step="0.001">
                 </md-input-container>
                 <div flex>
                   <span ng-show="!vm.resolving">
@@ -48,7 +55,7 @@
                     <md-card-title>
                       <md-card-title-text>
                         <span class="md-headline">Mean Reversion</span>
-                        <span class="md-subhead">This algorithm trades when the 30-day moving average crosses the 90-day moving average based on
+                        <span class="md-subhead">Trading when 30-day moving average crosses the 90-day moving average based on
                           trending direction.</span>
                       </md-card-title-text>
                     </md-card-title>
@@ -71,6 +78,13 @@
                           layout-wrap>
                         <div class="performance-panel md-item-text md-whiteframe-z1" flex>
                           <h3>{{vm.trade}}</h3>
+                        </div>
+                      </md-list-item>
+                      <md-list-item class="md-2-line" layout="row"
+                          layout-wrap>
+                        <div class="performance-panel md-item-text md-whiteframe-z1" flex>
+                          <h3>{{vm.recommendedDifference}}</h3>
+                          <p>Recommended Difference</p>
                         </div>
                       </md-list-item>
                     </md-list>

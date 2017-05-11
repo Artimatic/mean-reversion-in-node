@@ -23,7 +23,7 @@
               <ng-md-icon icon="menu"></ng-md-icon>
             </md-button>
             <h3>
-                Home
+                <span ui-sref="home">Home</span>
             </h3>
             <span flex></span>
             <md-button aria-label="Search">
@@ -35,10 +35,10 @@
           </div>
           <md-tabs md-stretch-tabs class="md-primary">
             <md-tab id="tab1" aria-controls="tab1-content">
-              <span ui-sref="home">Mean Reversion V1</span>
+              <span ui-sref="home">Backtest</span>
             </md-tab>
             <md-tab id="tab2" aria-controls="tab2-content">
-                Mean Reversion V2
+                Next Trade
             </md-tab>
           </md-tabs>
         </md-toolbar>
