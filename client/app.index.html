@@ -11,8 +11,10 @@
       <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
       <link rel="stylesheet" href="/dist/css/main.css">
       <script src="/dist/vendors/index.js"></script>
+      <script type="text/javascript" src="//unpkg.com/angular-js-xlsx/angular-js-xlsx.js"></script>
       <script src="//cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js"></script>
       <script src="/dist/framework/index.js"></script>
+      <script src="https://cdn.rawgit.com/SheetJS/js-xlsx/v0.8.0/dist/xlsx.full.min.js"></script>
     </head>
     <body>
 
@@ -22,8 +24,8 @@
             <md-button hide-gt-md aria-label="Menu">
               <ng-md-icon icon="menu"></ng-md-icon>
             </md-button>
-            <h3>
-                <span ui-sref="home">Home</span>
+            <h3 ui-sref="home">
+                Home
             </h3>
             <span flex></span>
             <md-button aria-label="Search">
@@ -34,11 +36,11 @@
             </md-button>
           </div>
           <md-tabs md-stretch-tabs class="md-primary">
-            <md-tab id="tab1" aria-controls="tab1-content">
-              <span ui-sref="home">Backtest</span>
+            <md-tab id="tab1" ui-sref="home" aria-controls="tab1-content">
+              Backtest
             </md-tab>
-            <md-tab id="tab2" aria-controls="tab2-content">
-                Next Trade
+            <md-tab id="tab2" ui-sref="bulk" aria-controls="tab2-content">
+                Bulk Analysis
             </md-tab>
           </md-tabs>
         </md-toolbar>

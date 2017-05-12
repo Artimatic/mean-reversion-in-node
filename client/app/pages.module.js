@@ -2,9 +2,9 @@
 
 angular
     .module('pages', [
-        'pages.analytics',
-        'pages.dashboard'
+        'pages.dashboard',
+        'pages.bulk-analysis'
     ]);
 
-require('./analytics/analytics.module');
+require('./bulk-analysis/bulk-analysis.module');
 require('./dashboard/dashboard.module');

@@ -1,10 +1,7 @@
 'use strict';
-
-angular.module('main', [
-  'ui.router',
-])
-  .config(function ($stateProvider, $urlRouterProvider, $locationProvider) {
-    $urlRouterProvider.otherwise('/home');
-
-    $locationProvider.html5Mode(true);
-});
+function config($urlRouterProvider) {
+        $urlRouterProvider.otherwise('/home');
+}
+angular
+    .module('main')
+    .config(config);

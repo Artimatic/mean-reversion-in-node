@@ -131,7 +131,8 @@ function BacktestController ($http) {
     };
 }
 
-angular.module('pages.dashboard', ['ngMaterial', 'ngMdIcons'])
+angular
+    .module('pages.dashboard')
     .controller('BacktestController', BacktestController)
     .config(function($mdThemingProvider) {
         $mdThemingProvider.theme('altTheme')

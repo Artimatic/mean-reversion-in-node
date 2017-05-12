@@ -13,9 +13,9 @@ const Expression = algebra.Expression;
 const Equation = algebra.Equation;
 
 class ReversionService {
-    getTrend(quotes, end, thirtyDay, ninetyDay) {
-        let trend = DecisionService.getInitialTrend(quotes, end);
-        trend = DecisionService.getTrendLogic(thirtyDay, ninetyDay, trend);
+    getTrend(quotes, end, thirtyDay, ninetyDay, deviation) {
+        let trend = DecisionService.getInitialTrend(quotes, end, deviation);
+        trend = DecisionService.getTrendLogic(thirtyDay, ninetyDay, trend, deviation);
         return trend;
     }
     getData(ticker, currentDate) {
@@ -91,7 +91,6 @@ class ReversionService {
                 });
     }
 
-    //90 days, +90 days for earliest moving average
     calculateForBacktest(historicalData, fn) {
         return historicalData.reduce(function(accumulator, value, idx){
             if(idx >= 90) {
@@ -128,8 +127,8 @@ class ReversionService {
                 case data.length - 90:
                     accumulator.ninetyAvg = accumulator.total/90;
                     accumulator.ninetyTotal = accumulator.total;
-                    accumulator.trending = DecisionService.getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend);
                     accumulator.deviation = DecisionService.calculatePercentDifference(accumulator.thirtyAvg,accumulator.ninetyAvg);
+                    accumulator.trending = DecisionService.getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend, accumulator.deviation);
                 break;
             }
             return accumulator;
