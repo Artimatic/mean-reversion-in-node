@@ -4,6 +4,7 @@ window.d3 = require('d3');
 window.c3 = require('c3');
 window.moment = require('moment');
 window.math = require('mathjs');
+window.XLSX = require('xlsx');
 
 require('angular');
 require('angular-animate');
@@ -12,5 +13,3 @@ require('angular-messages');
 require('angular-material');
 require('angular-ui-router');
 require('c3-angular');
-require('xlsx');
-require('angular-js-xlsx');

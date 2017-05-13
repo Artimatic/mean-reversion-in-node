@@ -6,5 +6,5 @@ angular
         'pages.bulk-analysis'
     ]);
 
-require('./bulk-analysis/bulk-analysis.module');
 require('./dashboard/dashboard.module');
+require('./bulk-analysis/bulk-analysis.module');

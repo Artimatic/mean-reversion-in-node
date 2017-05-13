@@ -1,11 +1,5 @@
-
-<div ng-controller="BulkAnalysisController as vm" layout="column" ng-cloak="" ng-app="MyApp">
-  <md-content layout-padding layout="row" layout-align="start end">
-      <input id="fileInput" type="file" class="ng-hide">
-      <md-button id="uploadButton" class="md-raised md-primary" aria-label="attach_file">    Choose file </md-button>
-      <md-input-container  md-no-float>
-          <input id="textInput" ng-model="fileName" type="text" placeholder="No file chosen" ng-readonly="true">
-      </md-input-container>
-      <js-xls onread="vm.read" onerror="vm.error"></js-xls>
-  </md-content>
+<div ng-controller="BulkAnalysisController as vm">
+    <md-content layout-padding layout="row" layout-align="start end">
+        <xls-import handler="vm.read" error="vm.error"></xls-import>
+    </md-content>
 </div>
