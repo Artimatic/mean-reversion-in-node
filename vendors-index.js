@@ -12,3 +12,5 @@ require('angular-messages');
 require('angular-material');
 require('angular-ui-router');
 require('c3-angular');
+require('xlsx');
+require('angular-js-xlsx');

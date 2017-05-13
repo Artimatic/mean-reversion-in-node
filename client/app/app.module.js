@@ -5,6 +5,7 @@ angular
         'ui.router',
         'gridshore.c3js.chart',
         'ngMaterial',
+        'angular-js-xlsx',
         'pages',
         'components'
     ]);
