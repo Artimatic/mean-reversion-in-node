@@ -12,6 +12,7 @@
     "cheerio": "~0.22.0",
     "composable-middleware": "^0.3.0",
     "compression": "~1.0.1",
+    "config": "~1.26.1",
     "cookie-parser": "~1.0.1",
     "errors": "^0.3.0",
     "errorhandler": "~1.0.0",
