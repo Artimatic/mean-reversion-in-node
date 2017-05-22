@@ -29,10 +29,12 @@ function getTrendLogic(thirtyDay, ninetyDay, trend, deviation) {
 function getInitialTrend(quotes, end, deviation) {
     let trend = trends.indet;
     if((quotes[end].close>quotes[end-1].close) &&
-        (quotes[end-1].close>quotes[end-2].close)) {
+        (quotes[end-1].close>quotes[end-2].close) &&
+        (quotes[end-2].close>quotes[end-3].close)) {
         trend = trends.up;
     } else if((quotes[end].close<quotes[end-1].close) &&
-        (quotes[end-1].close<quotes[end-2].close)) {
+        (quotes[end-1].close<quotes[end-2].close) &&
+            (quotes[end-1].close<quotes[end-2].close)) {
             trend = trends.down;
     }
     return trend;

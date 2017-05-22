@@ -59,6 +59,7 @@ class ReversionService {
                         return price;
                     })
                     .catch(err => {
+                        console.log('ERROR! pricing', err);
                         throw errors.InvalidArgumentsError();
                     });
     }
@@ -87,6 +88,7 @@ class ReversionService {
                 })
                 .then(data => data)
                 .catch(err => {
+                    console.log('ERROR! backtest', err);
                     throw errors.InvalidArgumentsError();
                 });
     }
