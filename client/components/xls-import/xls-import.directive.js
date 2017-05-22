@@ -1,7 +1,4 @@
-angular
-    .module('components')
-    .directive('xlsImport', xlsImport);
-
+'use strict';
 function xlsImport() {
     var directive = {
         link: link,
@@ -16,7 +13,6 @@ function xlsImport() {
 
     function link(scope, element, attrs) {
       element.on('change', function (changeEvent) {
-         scope.error()('error');
         var reader = new FileReader();
 
         reader.onload = function (evt) {
@@ -39,3 +35,6 @@ function xlsImport() {
       });
     }
 }
+angular
+    .module('components')
+    .directive('xlsImport', xlsImport);

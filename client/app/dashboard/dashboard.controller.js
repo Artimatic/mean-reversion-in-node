@@ -5,8 +5,8 @@ function BacktestController ($http) {
     vm.backtestStartDate = moment(vm.backtestDate).subtract(3, 'years').toDate();
     vm.datapoints=[];
     vm.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
-                        {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
-                        {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
+                    {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
+                    {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
     vm.datax={'id':'x'};
     vm.security = '';
     vm.simulatedTrades = {};

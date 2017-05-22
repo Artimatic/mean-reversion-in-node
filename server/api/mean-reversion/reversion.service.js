@@ -64,7 +64,34 @@ class ReversionService {
                     });
     }
 
-    runBacktest(ticker, currentDate, startDate, deviation, recommendDeviation) {
+    runBacktest(ticker, currentDate, startDate, deviation) {
+        let endDate     = moment(currentDate).format(),
+            start       = moment(startDate).subtract(140, 'days').format();
+
+        deviation = parseFloat(deviation);
+
+        if(isNaN(deviation)) {
+            throw errors.InvalidArgumentsError();
+        }
+
+        return QuoteService.getData(ticker, start, endDate)
+                .then(data =>{
+                    return this.calculateForBacktest(data, this.getDecisionData);
+                })
+                .then(decisions =>{
+                    let recommendedDeviation = DecisionService.findBestDeviation(decisions, startDate);
+                    let returns = DecisionService.getReturns(decisions, deviation, startDate);
+                    let element = {totalReturn: returns, recommendedDifference: recommendedDeviation};
+                    decisions.push(element);
+
+                    return decisions;
+                })
+                .catch(err => {
+                    console.log('ERROR! backtest', err);
+                    throw errors.InvalidArgumentsError();
+                });
+    }
+    getSnapshot(ticker, currentDate, startDate, deviation) {
         let endDate     = moment(currentDate).format(),
             start       = moment(startDate).subtract(140, 'days').format();
 
