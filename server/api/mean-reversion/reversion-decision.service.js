@@ -41,6 +41,8 @@ function getInitialTrend(quotes, end, deviation) {
 }
 
 function solveExpression(thirtyAvgTotal, ninetyAvgTotal, acceptedDeviation) {
+    console.log('deviation4', thirtyAvgTotal, ninetyAvgTotal);
+
     let thirtyFraction              = math.fraction(math.number(math.round(thirtyAvgTotal, 3))),
         ninetyFraction              = math.fraction(math.number(math.round(ninetyAvgTotal, 3))),
         leftConstant                = math.multiply(thirtyFraction, math.fraction('1/30')),

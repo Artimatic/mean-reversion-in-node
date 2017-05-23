@@ -30,10 +30,9 @@ class ReversionService {
 
     getPrice(ticker, currentDate, deviation) {
         let endDate     = moment(currentDate).format(),
-            start       = moment(currentDate).subtract(140, 'days').format();
-
-            var quotes      = null,
-                decisions   = null;
+            start       = moment(currentDate).subtract(140, 'days').format(),
+            quotes      = null,
+            decisions   = null;
 
             deviation = parseFloat(deviation);
 
@@ -91,33 +90,52 @@ class ReversionService {
                     throw errors.InvalidArgumentsError();
                 });
     }
-    getSnapshot(ticker, currentDate, startDate, deviation) {
-        let endDate     = moment(currentDate).format(),
-            start       = moment(startDate).subtract(140, 'days').format();
+    runBacktestSnapshot(ticker, currentDate, startDate, deviation) {
+        let endDate         = moment(currentDate).format(),
+            start           = moment(startDate).subtract(140, 'days').format(),
+            autoDeviation   = false,
+            quotes          = null,
+            decisions       = null,
+            returnInfo      = null;
 
         deviation = parseFloat(deviation);
 
         if(isNaN(deviation)) {
-            throw errors.InvalidArgumentsError();
+            autoDeviation   = true;
         }
 
         return QuoteService.getData(ticker, start, endDate)
-                .then(data =>{
-                    return this.calculateForBacktest(data, this.getDecisionData);
-                })
-                .then(decisions =>{
-                    let recommendedDeviation = DecisionService.findBestDeviation(decisions, startDate);
-                    let returns = DecisionService.getReturns(decisions, deviation, startDate);
-                    let element = {totalReturn: returns, recommendedDifference: recommendedDeviation};
-                    decisions.push(element);
+            .then(data =>{
+                quotes = data;
+                return data;
+            })
+            .then(this.getDecisionData)
+            .then(data =>{
+                decisions = data;
+                return this.calculateForBacktest(quotes, this.getDecisionData);
+            })
+            .then(decisions =>{
+                let recommendedDeviation = DecisionService.findBestDeviation(decisions, startDate);
+                if(autoDeviation) {
+                    deviation = recommendedDeviation;
+                }
+                let returns = DecisionService.getReturns(decisions, deviation, startDate);
+                let element = {totalReturn: returns, recommendedDifference: recommendedDeviation};
 
-                    return decisions;
-                })
-                .then(data => data)
-                .catch(err => {
-                    console.log('ERROR! backtest', err);
-                    throw errors.InvalidArgumentsError();
-                });
+                returnInfo = element;
+
+                return element;
+            })
+            .then(data => {
+                return this.calcPricing(quotes, quotes.length-1, decisions.thirtyTotal, decisions.ninetyTotal, deviation);
+            })
+            .then(price =>{
+                return Object.assign(returnInfo, price, {lastPrice: quotes[quotes.length-1].close});
+            })
+            .catch(err => {
+                console.log('ERROR! backtest', err);
+                throw errors.InvalidArgumentsError();
+            });
     }
 
     calculateForBacktest(historicalData, fn) {
@@ -186,7 +204,6 @@ class ReversionService {
         //Subtract the last price
         thirtyAvgTotal -= historicalData[endIdx-29].close; //{value.closing}
         ninetyAvgTotal -= historicalData[endIdx-89].close;
-
         let range = DecisionService.solveExpression(thirtyAvgTotal, ninetyAvgTotal, deviation);
 
         return range;

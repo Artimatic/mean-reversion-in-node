@@ -1,12 +1,12 @@
 'use strict';
 function BulkAnalysisController($http) {
     var vm = this;
-    vm.data = [];
+    vm.bulkData = [];
 
     function backtestRequest(data) {
         $http.post('/api/mean-reversion/backtest', data, {}).then(function(response) {
             console.log('data', response);
-            vm.data.push({stock: data.ticker, data: response});
+            vm.bulkData.push({stock: data.ticker, data: response});
         }).catch(function(error) {
             console.log('error', error);
         });
@@ -29,6 +29,7 @@ function BulkAnalysisController($http) {
             };
 
             backtestRequest(data);
+            
         });
     };
 

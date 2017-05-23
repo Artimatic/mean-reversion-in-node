@@ -36,6 +36,16 @@ class ReversionController extends BaseController {
         }
     }
 
+    runBacktestQuick(request, response) {
+        if (_.isEmpty(request.body)) {
+            return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
+        }
+        else {
+            ReversionService.runBacktestSnapshot(request.body.ticker, request.body.end, request.body.start, request.body.deviation)
+                .then((data) => BaseController.requestGetSuccessHandler(response, data))
+                .catch((err) => BaseController.requestErrorHandler(response, err));
+        }
+    }
     getPrice(request, response) {
         if (_.isEmpty(request.body)) {
             return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
