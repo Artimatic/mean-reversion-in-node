@@ -18,7 +18,7 @@ app.set('views', __dirname + '/modules')
 app.set('view engine', 'html');
 
 var server = require('http').createServer(app);
-require('./express')(app);
+require('./config/express')(app);
 require('./routes')(app);
 
 // Start server
