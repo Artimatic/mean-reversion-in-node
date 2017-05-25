@@ -4,17 +4,14 @@ function BulkAnalysisController($http) {
     vm.bulkData = [];
 
     function backtestRequest(data) {
-        $http.post('/api/mean-reversion/backtest', data, {}).then(function(response) {
-            console.log('data', response);
-            vm.bulkData.push({stock: data.ticker, data: response});
+        $http.post('/api/mean-reversion/info', data, {}).then(function(response) {
+            vm.bulkData.push(Object.assign({stock: data.ticker}, response.data));
         }).catch(function(error) {
             console.log('error', error);
         });
     }
 
     vm.read = function (workbook) {
-        console.log('read', workbook);
-
         // console.log(workbook);
         // for (var sheetName in workbook.Sheets) {
         //   var jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
@@ -29,7 +26,7 @@ function BulkAnalysisController($http) {
             };
 
             backtestRequest(data);
-            
+
         });
     };
 

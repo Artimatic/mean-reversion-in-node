@@ -28,6 +28,7 @@ function getTrendLogic(thirtyDay, ninetyDay, trend, deviation) {
 
 function getInitialTrend(quotes, end, deviation) {
     let trend = trends.indet;
+
     if((quotes[end].close>quotes[end-1].close) &&
         (quotes[end-1].close>quotes[end-2].close) &&
         (quotes[end-2].close>quotes[end-3].close)) {
@@ -41,8 +42,6 @@ function getInitialTrend(quotes, end, deviation) {
 }
 
 function solveExpression(thirtyAvgTotal, ninetyAvgTotal, acceptedDeviation) {
-    console.log('deviation4', thirtyAvgTotal, ninetyAvgTotal);
-
     let thirtyFraction              = math.fraction(math.number(math.round(thirtyAvgTotal, 3))),
         ninetyFraction              = math.fraction(math.number(math.round(ninetyAvgTotal, 3))),
         leftConstant                = math.multiply(thirtyFraction, math.fraction('1/30')),

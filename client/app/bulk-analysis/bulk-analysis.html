@@ -2,4 +2,34 @@
     <md-content layout-padding layout="row" layout-align="start end">
         <xls-import handler="vm.read" error="vm.error"></xls-import>
     </md-content>
+    <md-content>
+          <table class="md-table" md-colresize="md-colresize">
+            <thead>
+              <tr class="md-table-headers-row">
+                <th class="md-table-header">Stock</th>
+                <th class="md-table-header">Returns</th>
+                <th class="md-table-header">Recommended Difference</th>
+                <th class="md-table-header">Min Price</th>
+                <th class="md-table-header">Max Price</th>
+                <th class="md-table-header">Last Price</th>
+                <th class="md-table-header">Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="md-table-content-row" ng-repeat="item in vm.bulkData">
+                <td>
+                  <div class="md-table-thumbs">
+                    <h3>{{ item.stock }}</h3>
+                  </div>
+                </td>
+                <td class="md-table-content">{{ item.totalReturn }}</td>
+                <td class="md-table-content">{{ item.recommendedDifference }}</td>
+                <td class="md-table-content">{{ item.lower.price }}</td>
+                <td class="md-table-content">{{ item.upper.price }}</td>
+                <td class="md-table-content">{{ item.lastPrice }}</td>
+                <td class="md-table-content">{{ item.trending }}</td>
+              </tr>
+            </tbody>
+          </table>
+    </md-content>
 </div>

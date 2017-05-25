@@ -42,6 +42,9 @@ class ReversionService {
 
             return QuoteService.getData(ticker, start, endDate)
                     .then(data =>{
+                        if(data.length === 0) {
+                            throw errors.InvalidArgumentsError();
+                        }
                         quotes = data;
                         return data;
                     })
@@ -75,6 +78,9 @@ class ReversionService {
 
         return QuoteService.getData(ticker, start, endDate)
                 .then(data =>{
+                    if(data.length === 0) {
+                        throw errors.InvalidArgumentsError();
+                    }
                     return this.calculateForBacktest(data, this.getDecisionData);
                 })
                 .then(decisions =>{
@@ -95,7 +101,7 @@ class ReversionService {
             start           = moment(startDate).subtract(140, 'days').format(),
             autoDeviation   = false,
             quotes          = null,
-            decisions       = null,
+            decision       = null,
             returnInfo      = null;
 
         deviation = parseFloat(deviation);
@@ -106,12 +112,15 @@ class ReversionService {
 
         return QuoteService.getData(ticker, start, endDate)
             .then(data =>{
+                if(data.length === 0) {
+                    throw errors.InvalidArgumentsError();
+                }
                 quotes = data;
                 return data;
             })
             .then(this.getDecisionData)
             .then(data =>{
-                decisions = data;
+                decision = data;
                 return this.calculateForBacktest(quotes, this.getDecisionData);
             })
             .then(decisions =>{
@@ -127,10 +136,10 @@ class ReversionService {
                 return element;
             })
             .then(data => {
-                return this.calcPricing(quotes, quotes.length-1, decisions.thirtyTotal, decisions.ninetyTotal, deviation);
+                return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
             })
             .then(price =>{
-                return Object.assign(returnInfo, price, {lastPrice: quotes[quotes.length-1].close});
+                return Object.assign(returnInfo, price, {lastPrice: quotes[quotes.length-1].close, trending: decision.trending});
             })
             .catch(err => {
                 console.log('ERROR! backtest', err);
