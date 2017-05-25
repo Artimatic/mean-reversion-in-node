@@ -13,11 +13,13 @@ var methodOverride = require('method-override');
 var cookieParser = require('cookie-parser');
 var errorHandler = require('errorhandler');
 var path = require('path');
+var config = require('./environment');
 
 
 module.exports = function(app) {
   var env = app.get('env');
 
+  app.set('views', config.root + '/server/views');
   app.set('view engine', 'html');
   app.use(compression());
   app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,7 +27,19 @@ module.exports = function(app) {
   app.use(methodOverride());
   app.use(cookieParser());
 
+  if ('production' === env) {
+    //app.use(favicon(path.join(config.root, 'public', 'favicon.ico')));
+    //app.use(express.static(path.join(config.root, 'public')));
+    //app.set('appPath', config.root + '/public');
+    app.use(express.static(path.join(config.root, 'client')));
+    app.set('appPath', 'client');
+    app.use(morgan('dev'));
+    app.use(errorHandler()); // Error handler - has to be last
+  }
+
   if ('development' === env || 'test' === env) {
+    app.use(express.static(path.join(config.root, '.tmp')));
+    app.use(express.static(path.join(config.root, 'client')));
     app.set('appPath', 'client');
     app.use(morgan('dev'));
     app.use(errorHandler()); // Error handler - has to be last
