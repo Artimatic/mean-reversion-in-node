@@ -22,8 +22,8 @@
                     <h3>{{ item.stock }}</h3>
                   </div>
                 </td>
-                <td class="md-table-content">{{ item.totalReturn }}</td>
-                <td class="md-table-content">{{ item.recommendedDifference | percentage:2}}</td>
+                <td class="md-table-content">{{ item.totalReturn | percentage:2}}</td>
+                <td class="md-table-content">{{ item.recommendedDifference}}</td>
                 <td class="md-table-content">{{ item.lower.price }}</td>
                 <td class="md-table-content">{{ item.upper.price }}</td>
                 <td class="md-table-content">{{ item.lastPrice }}</td>
