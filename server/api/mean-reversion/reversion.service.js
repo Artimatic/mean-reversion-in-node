@@ -139,11 +139,19 @@ class ReversionService {
                 return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
             })
             .then(price =>{
-                let trend1 = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg);
-                let trend2 = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg);
+                let trend1 = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg),
+                    trend2 = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg),
+                    lastPrice = quotes[quotes.length-1].close,
+                    actionable = false;
+
                 price.lower.trend = trend1;
                 price.upper.trend = trend2;
-                return Object.assign(returnInfo, price, {lastPrice: quotes[quotes.length-1].close, trending: decision.trending});
+
+                if(lastPrice >= price.lower.trend.price && lastPrice <= price.upper.trend.price) {
+                    actionable = true;
+                }
+
+                return Object.assign(returnInfo, price, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
             })
             .catch(err => {
                 console.log('ERROR! backtest', err);

@@ -1,22 +1,30 @@
 'use strict';
 function BulkAnalysisController($http) {
-    var vm = this;
+    var vm = this,
+        totalItems = 0;
+
     vm.bulkData = [];
+    vm.actionableFilter = false;
+    vm.waiting = 0;
 
     function backtestRequest(data) {
         $http.post('/api/mean-reversion/info', data, {}).then(function(response) {
             vm.bulkData.push(Object.assign({stock: data.ticker}, response.data));
+            vm.waiting += 100/totalItems;
         }).catch(function(error) {
             console.log('error', error);
         });
     }
 
-    vm.read = function (workbook) {
+    vm.read = function(workbook) {
         // console.log(workbook);
         // for (var sheetName in workbook.Sheets) {
         //   var jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
         //   console.log(jsonData);
         // }
+        totalItems = workbook.length;
+        vm.waiting = 0;
+
         workbook.forEach(function(row){
             let data = {
                 'ticker': row.Stock,
@@ -30,8 +38,19 @@ function BulkAnalysisController($http) {
         });
     };
 
-    vm.error = function (e) {
+    vm.error = function(e) {
        console.log('error',e);
+   };
+
+   vm.filter = function(item) {
+       if(!vm.actionableFilter) {
+           return true;
+       }
+
+       if(!item.actionable) {
+           return false;
+       }
+       return true;
    };
 }
 
