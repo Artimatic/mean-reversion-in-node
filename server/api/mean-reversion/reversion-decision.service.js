@@ -8,9 +8,9 @@ const Equation = algebra.Equation;
 
 
 const trends = {
-    down:  'downwards',
-    up: 'upwards',
-    indet: 'indeterminant'
+    down:  'Sell',
+    up: 'Buy',
+    indet: 'Indeterminant'
 };
 
 function getTrendLogic(thirtyDay, ninetyDay, trend, deviation) {
@@ -110,7 +110,7 @@ function getReturns(decisions, deviation, startDate) {
     let results = decisions.reduce(function(orders, day) {
         if(moment(day.date).isAfter(moment(startDate).subtract(1,'day').format())) {
             if(calculatePercentDifference(day.thirtyAvg, day.ninetyAvg) <= deviation) {
-                if(day.trending === 'downwards'){
+                if(day.trending === trends.down){
                     //Sell
                     if(orders.buy.length > 0) {
                         let holding = orders.buy.shift(),
@@ -118,7 +118,7 @@ function getReturns(decisions, deviation, startDate) {
                         orders.total += holding;
                         orders.net += profit;
                     }
-                } else if(day.trending === 'upwards'){
+                } else if(day.trending === trends.up){
                     //Buy
                     orders.buy.push(day.close);
                 }

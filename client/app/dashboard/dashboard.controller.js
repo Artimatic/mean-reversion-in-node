@@ -117,9 +117,9 @@ function BacktestController ($http) {
             } else {
                 vm.prices.upperbound = response.data.upper.price;
             }
-            if(response.data.lower.trend === 'downwards' && response.data.upper.trend === 'downwards') {
+            if(response.data.lower.trend === 'Sell' && response.data.upper.trend === 'Sell') {
                 vm.trade = 'Sell';
-            } else if(response.data.lower.trend === 'upwards' && response.data.upper.trend === 'upwards') {
+            } else if(response.data.lower.trend === 'Buy' && response.data.upper.trend === 'Buy') {
                 vm.trade = 'Buy';
             } else {
                 vm.trade = 'Neutral';

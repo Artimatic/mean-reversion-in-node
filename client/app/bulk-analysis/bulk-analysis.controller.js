@@ -22,7 +22,7 @@ function BulkAnalysisController($http) {
                 'ticker': row.Stock,
                 'end': row['End Date'] || moment().format('YYYY-MM-DD'),
                 'start': row['Start Date'] || moment().subtract(3, 'years').format('YYYY-MM-DD'),
-                'deviation': row.Difference
+                'deviation': row.Difference || null
             };
 
             backtestRequest(data);
