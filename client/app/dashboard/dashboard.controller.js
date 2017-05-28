@@ -73,9 +73,9 @@ function BacktestController ($http) {
             for(var i = 0; i < data.length-1; i++) {
                 day = data[i];
                 if(day.deviation < vm.acceptedDifference) {
-                    if(day.trending === 'downwards') {
+                    if(day.trending === 'Sell') {
                         vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
-                    } else if(day.trending === 'upwards') {
+                    } else if(day.trending === 'Buy') {
                         vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
                     } else {
                         vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
