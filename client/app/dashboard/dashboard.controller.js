@@ -2,7 +2,7 @@
 function BacktestController ($http) {
     var vm = this;
     vm.backtestDate = new Date();
-    vm.backtestStartDate = moment(vm.backtestDate).subtract(3, 'years').toDate();
+    vm.backtestStartDate = moment(vm.backtestDate).subtract(4, 'years').toDate();
     vm.datapoints=[];
     vm.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
                     {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
@@ -18,6 +18,21 @@ function BacktestController ($http) {
     vm.prices = {lowerbound: 0, upperbound: 0};
     vm.trade = 'Neutral';
     vm.data = null;
+
+    function calculatePercentDifference(v1, v2) {
+        return Math.abs(Math.abs(v1-v2)/((v1+v2)/2));
+    }
+
+    function triggerCondition(lastPrice, thirtyDay, ninetyDay, deviation) {
+
+        if(calculatePercentDifference(thirtyDay, ninetyDay) >= deviation*4.7 && calculatePercentDifference(thirtyDay, ninetyDay) <= deviation*5.1 && thirtyDay < ninetyDay && lastPrice < thirtyDay) {
+            return true;
+        }
+        if(calculatePercentDifference(thirtyDay, ninetyDay) <= deviation) {
+            return true;
+        }
+        return false;
+    }
 
     vm.dateFn = function (x) {
         return moment(x).format('MM/DD');
@@ -72,7 +87,7 @@ function BacktestController ($http) {
 
             for(var i = 0; i < data.length-1; i++) {
                 day = data[i];
-                if(day.deviation < vm.acceptedDifference) {
+                if(triggerCondition(day.close, day.thirtyAvg, day.ninetyAvg, vm.acceptedDifference)) {
                     if(day.trending === 'Sell') {
                         vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
                     } else if(day.trending === 'Buy') {

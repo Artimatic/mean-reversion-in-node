@@ -11,10 +11,10 @@
                   <input ng-model="vm.security" placeholder="GOOG" ng-pattern="/\S{1,10}/" required>
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-sm>
-                    <input type="date" name="input" ng-model="vm.backtestDate" min="vm.backtestStartDate" placeholder="Beginning" required />
+                    <input type="date" name="input" ng-model="vm.backtestStartDate" max="vm.backtestDate" placeholder="Beginning" required />
                 </md-input-container>
                 <md-input-container class="md-block" flex-gt-sm>
-                    <input type="date" name="input" ng-model="vm.backtestStartDate" max="vm.backtestDate" placeholder="End" required />
+                    <input type="date" name="input" ng-model="vm.backtestDate" min="vm.backtestStartDate" placeholder="End" required />
                 </md-input-container>
                 <md-input-container class="md-icon-float md-icon-right md-block">
                   <label>Accepted Difference</label>

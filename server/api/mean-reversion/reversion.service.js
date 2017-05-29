@@ -139,22 +139,23 @@ class ReversionService {
                 return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
             })
             .then(price =>{
-                let trend1 = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg),
-                    trend2 = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg),
-                    lastPrice = quotes[quotes.length-1].close,
-                    actionable = false;
+                let trend1      = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg),
+                    trend2      = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg),
+                    lastPrice   = quotes[quotes.length-1].close,
+                    actionable  = false,
+                    trend       = null;
 
                 price.lower.trend = trend1;
                 price.upper.trend = trend2;
 
-                if(lastPrice >= price.lower.price && lastPrice <= price.upper.price) {
+                if(lastPrice >= price.lower.price && lastPrice <= price.upper.price || DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation)) {
                     actionable = true;
                 }
 
                 return Object.assign(returnInfo, price, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
             })
             .catch(err => {
-                console.log('ERROR! backtest snapshot', err);
+                console.log('ERROR! backtest snapshot', err, ticker);
                 throw errors.InvalidArgumentsError();
             });
     }
@@ -181,7 +182,7 @@ class ReversionService {
             startIdx = 0;
         }
 
-        trend = DecisionService.getInitialTrend(historicalData, endIdx)
+        trend = DecisionService.getInitialTrend(historicalData, endIdx);
 
         let data = historicalData.slice(startIdx, endIdx+1);
 
@@ -196,13 +197,13 @@ class ReversionService {
                     accumulator.ninetyAvg = accumulator.total/90;
                     accumulator.ninetyTotal = accumulator.total;
                     accumulator.deviation = DecisionService.calculatePercentDifference(accumulator.thirtyAvg,accumulator.ninetyAvg);
-                    accumulator.trending = DecisionService.getTrendLogic(currentValue.close, accumulator.thirtyAvg, accumulator.ninetyAvg, trend, accumulator.deviation);
+                    accumulator.trending = DecisionService.getTrendLogic(accumulator.close, accumulator.thirtyAvg, accumulator.ninetyAvg, trend);
                 break;
             }
             return accumulator;
         }, {
             date: data[data.length-1].date,
-            trending: trend,
+            trending: null,
             deviation: null,
             thirtyAvg: null,
             ninetyAvg: null,
