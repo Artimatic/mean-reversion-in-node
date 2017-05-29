@@ -14,7 +14,9 @@ const trends = {
 };
 
 function getTrendLogic(lastPrice, thirtyDay, ninetyDay, trend) {
-    if(thirtyDay > ninetyDay && trend === trends.up) {
+    if(lastPrice < ninetyDay && lastPrice < thirtyDay) {
+        trend = trends.up;
+    } else if(thirtyDay > ninetyDay && trend === trends.up) {
         trend = trends.down;
     } else if(thirtyDay < ninetyDay && trend === trends.up) {
         trend = trends.up;
@@ -23,9 +25,7 @@ function getTrendLogic(lastPrice, thirtyDay, ninetyDay, trend) {
     } else if(thirtyDay > ninetyDay && trend === trends.down) {
         trend = trends.down;
     }
-    if(lastPrice < ninetyDay && lastPrice < thirtyDay && trend === trends.indet) {
-        trend = trends.up;
-    }
+
     return trend;
 }
 
@@ -45,10 +45,6 @@ function getInitialTrend(quotes, end, deviation) {
 }
 
 function triggerCondition(lastPrice, thirtyDay, ninetyDay, deviation) {
-
-    if(calculatePercentDifference(thirtyDay, ninetyDay) >= deviation*4.7 && calculatePercentDifference(thirtyDay, ninetyDay) <= deviation*5.1 && thirtyDay < ninetyDay && lastPrice < thirtyDay) {
-        return true;
-    }
     if(calculatePercentDifference(thirtyDay, ninetyDay) <= deviation) {
         return true;
     }

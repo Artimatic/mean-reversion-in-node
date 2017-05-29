@@ -24,10 +24,6 @@ function BacktestController ($http) {
     }
 
     function triggerCondition(lastPrice, thirtyDay, ninetyDay, deviation) {
-
-        if(calculatePercentDifference(thirtyDay, ninetyDay) >= deviation*4.7 && calculatePercentDifference(thirtyDay, ninetyDay) <= deviation*5.1 && thirtyDay < ninetyDay && lastPrice < thirtyDay) {
-            return true;
-        }
         if(calculatePercentDifference(thirtyDay, ninetyDay) <= deviation) {
             return true;
         }
