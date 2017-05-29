@@ -13,7 +13,7 @@ const trends = {
     indet: 'Indeterminant'
 };
 
-function getTrendLogic(thirtyDay, ninetyDay, trend, deviation) {
+function getTrendLogic(lastPrice, thirtyDay, ninetyDay, trend, deviation) {
     if(thirtyDay > ninetyDay && trend === trends.up) {
         trend = trends.down;
     } else if(thirtyDay < ninetyDay && trend === trends.up) {
@@ -22,6 +22,10 @@ function getTrendLogic(thirtyDay, ninetyDay, trend, deviation) {
         trend = trends.up;
     } else if(thirtyDay > ninetyDay && trend === trends.down) {
         trend = trends.down;
+    } else {
+        if(thirtyDay < ninetyDay && lastPrice < thirtyDay) {
+            trend = trend.up;
+        }
     }
     return trend;
 }

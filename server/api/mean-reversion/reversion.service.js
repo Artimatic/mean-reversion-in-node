@@ -15,7 +15,7 @@ const Equation = algebra.Equation;
 class ReversionService {
     getTrend(quotes, end, thirtyDay, ninetyDay, deviation) {
         let trend = DecisionService.getInitialTrend(quotes, end, deviation);
-        trend = DecisionService.getTrendLogic(thirtyDay, ninetyDay, trend, deviation);
+        trend = DecisionService.getTrendLogic(quotes[end], thirtyDay, ninetyDay, trend, deviation);
         return trend;
     }
     getData(ticker, currentDate) {
@@ -154,7 +154,7 @@ class ReversionService {
                 return Object.assign(returnInfo, price, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
             })
             .catch(err => {
-                console.log('ERROR! backtest', err);
+                console.log('ERROR! backtest snapshot', err);
                 throw errors.InvalidArgumentsError();
             });
     }
@@ -196,7 +196,7 @@ class ReversionService {
                     accumulator.ninetyAvg = accumulator.total/90;
                     accumulator.ninetyTotal = accumulator.total;
                     accumulator.deviation = DecisionService.calculatePercentDifference(accumulator.thirtyAvg,accumulator.ninetyAvg);
-                    accumulator.trending = DecisionService.getTrendLogic(accumulator.thirtyAvg, accumulator.ninetyAvg, trend, accumulator.deviation);
+                    accumulator.trending = DecisionService.getTrendLogic(currentValue.close, accumulator.thirtyAvg, accumulator.ninetyAvg, trend, accumulator.deviation);
                 break;
             }
             return accumulator;
