@@ -12,6 +12,7 @@ function BulkAnalysisController($http) {
             vm.bulkData.push(Object.assign({stock: data.ticker}, response.data));
             vm.waiting += 100/totalItems;
         }).catch(function(error) {
+            vm.waiting += 100/totalItems;
             console.log('error', error);
         });
     }
