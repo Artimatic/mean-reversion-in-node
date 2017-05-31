@@ -148,7 +148,7 @@ class ReversionService {
                 price.lower.trend = trend1;
                 price.upper.trend = trend2;
 
-                if(lastPrice >= price.lower.price && lastPrice <= price.upper.price || DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation)) {
+                if((lastPrice >= price.lower.price && lastPrice <= price.upper.price) || DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation)) {
                     actionable = true;
                 }
 

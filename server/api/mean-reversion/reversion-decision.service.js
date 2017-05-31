@@ -16,6 +16,8 @@ const trends = {
 function getTrendLogic(lastPrice, thirtyDay, ninetyDay, trend) {
     if(lastPrice < ninetyDay && lastPrice < thirtyDay) {
         trend = trends.up;
+    } else if(lastPrice > ninetyDay && lastPrice > thirtyDay) {
+        trend = trends.down;
     } else if(thirtyDay > ninetyDay && trend === trends.up) {
         trend = trends.down;
     } else if(thirtyDay < ninetyDay && trend === trends.up) {
