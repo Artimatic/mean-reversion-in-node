@@ -12,6 +12,9 @@ const trends = {
     up: 'Buy',
     indet: 'Indeterminant'
 };
+function getTrendsConst() {
+    return trends;
+}
 
 function getTrendLogic(lastPrice, thirtyDay, ninetyDay, trend) {
     if(lastPrice < ninetyDay && lastPrice < thirtyDay) {
@@ -165,6 +168,7 @@ function findBestDeviation(decisions, startDate) {
 }
 
 module.exports = {
+    getTrendsConst,
     getTrendLogic,
     getInitialTrend,
     triggerCondition,
