@@ -126,6 +126,7 @@ function getReturns(decisions, deviation, startDate) {
         if(moment(day.date).isAfter(moment(startDate).subtract(1,'day').format())) {
             if(triggerCondition(day.close, day.thirtyAvg, day.ninetyAvg, deviation)) {
                 if(day.trending === trends.down){
+                    orders.trades++;
                     //Sell
                     if(orders.buy.length > 0) {
                         let holding = orders.buy.shift(),
@@ -134,29 +135,34 @@ function getReturns(decisions, deviation, startDate) {
                         orders.net += profit;
                     }
                 } else if(day.trending === trends.up){
+                    orders.trades++;
                     //Buy
                     orders.buy.push(day.close);
                 }
             }
         }
         return orders;
-    }, {buy:[], total:0, net:0,});
+    }, {buy:[], total:0, net:0, trades: 0});
 
-    let returns = math.divide(results.net,results.total);
-    if(isNaN(returns)) {
-        returns = 0;
+    let totalTrades = results.trades;
+    let totalReturns = math.divide(results.net,results.total);
+
+    if(isNaN(totalReturns)) {
+        totalReturns = 0;
     }
-    return returns;
+    let response = {totalReturns, totalTrades};
+
+    return response;
 }
 
 function findBestDeviation(decisions, startDate) {
     let i           = 0,
-        maxReturn   = math.round(getReturns(decisions, 0, startDate),3),
+        maxReturn   = math.round(getReturns(decisions, 0, startDate).totalReturns,3),
         max         = 0;
 
     while(math.compare(i, 0.035) < 0) {
         i = math.round(math.add(i, 0.001), 3);
-        let currentReturn = getReturns(decisions, i, startDate);
+        let currentReturn = getReturns(decisions, i, startDate).totalReturns;
         currentReturn = math.round(currentReturn, 3);
         if(math.compare(currentReturn, maxReturn) === 1) {
             maxReturn = currentReturn;

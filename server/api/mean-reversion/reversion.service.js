@@ -85,7 +85,7 @@ class ReversionService {
                 })
                 .then(decisions =>{
                     let recommendedDeviation = DecisionService.findBestDeviation(decisions, startDate);
-                    let returns = DecisionService.getReturns(decisions, deviation, startDate);
+                    let returns = DecisionService.getReturns(decisions, deviation, startDate).totalReturns;
                     let element = {totalReturn: returns, recommendedDifference: recommendedDeviation};
                     decisions.push(element);
 
@@ -129,11 +129,10 @@ class ReversionService {
                     deviation = recommendedDeviation;
                 }
                 let returns = DecisionService.getReturns(decisions, deviation, startDate);
-                let element = {totalReturn: returns, recommendedDifference: recommendedDeviation};
 
-                returnInfo = element;
+                returnInfo = Object.assign(returns, {recommendedDeviation});
 
-                return element;
+                return returnInfo;
             })
             .then(data => {
                 return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
@@ -148,7 +147,10 @@ class ReversionService {
                 price.lower.trend = trend1;
                 price.upper.trend = trend2;
 
-                if(decision.trending !== DecisionService.getTrendsConst().indet &&((lastPrice >= price.lower.price && lastPrice <= price.upper.price) || DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation))) {
+                if(returnInfo.totalReturns > 0.01 && returnInfo.totalTrades > 30 &&
+                  decision.trending !== DecisionService.getTrendsConst().indet &&
+                  ((lastPrice >= price.lower.price && lastPrice <= price.upper.price) ||
+                  DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation))) {
                     actionable = true;
                 }
 
