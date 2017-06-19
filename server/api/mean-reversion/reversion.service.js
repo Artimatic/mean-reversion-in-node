@@ -124,13 +124,13 @@ class ReversionService {
                 return this.calculateForBacktest(quotes, this.getDecisionData);
             })
             .then(decisions =>{
-                let recommendedDeviation = DecisionService.findBestDeviation(decisions, startDate);
+                let recommendedDifference = DecisionService.findBestDeviation(decisions, startDate);
                 if(autoDeviation) {
-                    deviation = recommendedDeviation;
+                    deviation = recommendedDifference;
                 }
                 let returns = DecisionService.getReturns(decisions, deviation, startDate);
 
-                returnInfo = Object.assign(returns, {recommendedDeviation});
+                returnInfo = Object.assign(returns, {recommendedDifference});
 
                 return returnInfo;
             })
