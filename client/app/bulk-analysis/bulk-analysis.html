@@ -18,6 +18,7 @@
     </div>
   </md-content>
   <md-content>
+    <backtest-graph ticker="stock" difference="difference"></backtest-graph>
     <table class="md-table" md-colresize="md-colresize">
       <thead>
         <tr class="md-table-headers-row">
@@ -31,19 +32,45 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="md-table-content-row" ng-repeat="item in vm.bulkData | filter:vm.filter">
-          <td>
-            <div class="md-table-thumbs">
-              <h3>{{ item.stock }}</h3>
+        <md-item ng-repeat="item in vm.bulkData | filter:vm.filter" class="item"
+           ng-class="{ 'selected-item': $index == selectedIndex}">
+          <md-item-content class="user tile md-whiteframe-z1"
+                           ng-class="{ 'selected md-whiteframe-z2': $index == selectedIndex}"
+                           layout="column">
+            <div layout="row" layout-fill ng-click="selectIndex($index)" class="folded">
+              <div class="md-tile-content" layout="column" layout-align="center start">
+                <td>
+                  <div class="md-table-thumbs">
+                    <h3>{{ item.stock }}</h3>
+                  </div>
+                </td>
+                <td class="md-table-content">{{ item.totalReturns | percentage:2}}</td>
+                <td class="md-table-content">{{ item.recommendedDifference}}</td>
+                <td class="md-table-content">{{ item.lower.price }}</td>
+                <td class="md-table-content">{{ item.upper.price }}</td>
+                <td class="md-table-content">{{ item.lastPrice }}</td>
+                <td class="md-table-content">{{item.trending}}</td>
+              </div>
             </div>
-          </td>
-          <td class="md-table-content">{{ item.totalReturns | percentage:2}}</td>
-          <td class="md-table-content">{{ item.recommendedDifference}}</td>
-          <td class="md-table-content">{{ item.lower.price }}</td>
-          <td class="md-table-content">{{ item.upper.price }}</td>
-          <td class="md-table-content">{{ item.lastPrice }}</td>
-          <td class="md-table-content">{{item.trending}}</td>
-        </tr>
+            <md-divider layout-fill ng-show="$index == selectedIndex"></md-divider>
+            <div layout="column" layout-fill class="expanded">
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+              <br/>
+              <span>some content</span>
+            </div>
+          </md-item-content>
+          <md-divider class="divider-inset" ng-if="!$last"></md-divider>
+        </md-item>
       </tbody>
     </table>
   </md-content>
