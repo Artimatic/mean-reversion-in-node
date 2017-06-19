@@ -19,9 +19,9 @@ function backtestGraph() {
 
 }
 
-BacktestController.$inject = ['$scope'];
+BacktestController.$inject = ['$scope', '$http'];
 
-function BacktestController() {
+function BacktestController($http) {
     var vm = this;
     vm.backtestDate = new Date();
     vm.backtestStartDate = moment(vm.backtestDate).subtract(4, 'years').toDate();
@@ -79,7 +79,7 @@ function BacktestController() {
         return '<table class="c3-tooltip">'+title+body+'</table>';
     };
 
-    vm.runTest = function() {
+    function runTest() {
         var requestBody = {
             ticker: vm.ticker,
             start: moment(vm.backtestStartDate).format('YYYY-MM-DD'),
@@ -122,4 +122,8 @@ function BacktestController() {
             console.log(error);
         });
     };
+
+    vm.$watch('ticker', function (val) {
+        runTest();
+    });
 }

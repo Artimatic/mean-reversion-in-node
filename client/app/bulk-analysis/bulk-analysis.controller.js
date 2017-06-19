@@ -58,17 +58,6 @@ function BulkAnalysisController($http) {
      vm.stock = stock;
      vm.difference = difference;
    }
-
-   vm.selectedIndex = undefined;
-
-   vm.selectIndex = function (index) {
-    if (vm.selectedIndex !== index) {
-      vm.selectedIndex = index;
-    }
-    else {
-      vm.selectedIndex = undefined;
-    }
-  };
 }
 
 angular
