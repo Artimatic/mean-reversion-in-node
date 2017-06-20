@@ -2,42 +2,35 @@ angular
     .module('components')
     .directive('backtestGraph', backtestGraph);
 
-function backtestGraph() {
+function backtestGraph($http) {
     var directive = {
       restrict: 'E',
-      templateUrl: require('./backtest-graph.html'),
+      template: require('./backtest-graph.html'),
       scope: {
           ticker: '=',
           difference: '='
       },
-      controller: BacktestController,
-      controllerAs: 'vm',
-      bindToController: true
+      link: link
   };
 
   return directive;
 
-}
-
-BacktestController.$inject = ['$scope', '$http'];
-
-function BacktestController($http) {
-    var vm = this;
-    vm.backtestDate = new Date();
-    vm.backtestStartDate = moment(vm.backtestDate).subtract(4, 'years').toDate();
-    vm.datapoints=[];
-    vm.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
+  function link(scope, element, attrs) {
+    scope.backtestDate = new Date();
+    scope.backtestStartDate = moment(scope.backtestDate).subtract(4, 'years').toDate();
+    scope.datapoints=[];
+    scope.datacolumns=[{'id':'price','type':'spline','name': 'Price', 'color': 'lightgrey'},
                     {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
                     {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
-    vm.datax={'id':'x'};
-    vm.simulatedTrades = {};
-    vm.longPos = [];
-    vm.resolving = false;
-    vm.performance = null;
-    vm.recommendedDifference = 0;
-    vm.prices = {lowerbound: 0, upperbound: 0};
-    vm.trade = 'Neutral';
-    vm.data = null;
+    scope.datax={'id':'x'};
+    scope.simulatedTrades = {};
+    scope.longPos = [];
+    scope.resolving = false;
+    scope.performance = null;
+    scope.recommendedDifference = 0;
+    scope.prices = {lowerbound: 0, upperbound: 0};
+    scope.trade = 'Neutral';
+    scope.data = null;
 
     function calculatePercentDifference(v1, v2) {
         return Math.abs(Math.abs(v1-v2)/((v1+v2)/2));
@@ -50,15 +43,15 @@ function BacktestController($http) {
         return false;
     }
 
-    vm.dateFn = function (x) {
+    scope.dateFn = function (x) {
         return moment(x).format('MM/DD');
     };
 
-    vm.titleFormatFunction = function (x) {
+    scope.titleFormatFunction = function (x) {
         return moment(x).format('MM-DD-YYYY');
     };
 
-    vm.tooltipContents = function (d) {
+    scope.tooltipContents = function (d) {
         let title = '<tr><th>'+moment(d[0].x).format('MM-DD-YYYY')+'</th></tr>',
             body = '<tr><td>',
             value = d[0].index;
@@ -72,22 +65,22 @@ function BacktestController($http) {
         }
         body += math.round(d[0].value,2)+'</td></tr>';
         if(value) {
-            body += '<tr><td>30 day MA: '+math.round(vm.data[value].thirtyAvg,2)+'</td></tr>';
-            body += '<tr><td>90 day MA: '+math.round(vm.data[value].ninetyAvg,2)+'</td></tr>';
-            body += '<tr><td>difference: '+math.round(vm.data[value].deviation,3)+'</td></tr>';
+            body += '<tr><td>30 day MA: '+math.round(scope.data[value].thirtyAvg,2)+'</td></tr>';
+            body += '<tr><td>90 day MA: '+math.round(scope.data[value].ninetyAvg,2)+'</td></tr>';
+            body += '<tr><td>difference: '+math.round(scope.data[value].deviation,3)+'</td></tr>';
         }
         return '<table class="c3-tooltip">'+title+body+'</table>';
     };
 
     function runTest() {
         var requestBody = {
-            ticker: vm.ticker,
-            start: moment(vm.backtestStartDate).format('YYYY-MM-DD'),
-            end: moment(vm.backtestDate).format('YYYY-MM-DD'),
-            deviation: vm.difference
+            ticker: scope.ticker,
+            start: moment(scope.backtestStartDate).format('YYYY-MM-DD'),
+            end: moment(scope.backtestDate).format('YYYY-MM-DD'),
+            deviation: scope.difference
         };
 
-        vm.resolving = true;
+        scope.resolving = true;
         $http({
           method: 'POST',
           url: '/api/mean-reversion/backtest',
@@ -95,35 +88,36 @@ function BacktestController($http) {
         })
         .then((response) => {
             var data = response.data;
-            vm.datapoints = [];
-            vm.performance = data[data.length-1].totalReturn;
-            vm.recommendedDifference = data[data.length-1].recommendedDifference;
+            scope.datapoints = [];
+            scope.performance = data[data.length-1].totalReturn;
+            scope.recommendedDifference = data[data.length-1].recommendedDifference;
             var day = null;
 
             for(var i = 0; i < data.length-1; i++) {
                 day = data[i];
-                if(triggerCondition(day.close, day.thirtyAvg, day.ninetyAvg, vm.difference)) {
+                if(triggerCondition(day.close, day.thirtyAvg, day.ninetyAvg, scope.difference)) {
                     if(day.trending === 'Sell') {
-                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
+                        scope.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'sell': day.close});
                     } else if(day.trending === 'Buy') {
-                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
+                        scope.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'buy': day.close});
                     } else {
-                        vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
+                        scope.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
                     }
                 } else {
-                    vm.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
+                    scope.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
                 }
             }
-            vm.data = data;
-            vm.resolving = false;
+            scope.data = data;
+            scope.resolving = false;
         })
         .catch((error) => {
-            vm.resolving = false;
+            scope.resolving = false;
             console.log(error);
         });
     };
 
-    vm.$watch('ticker', function (val) {
+    scope.$watch('ticker', function () {
         runTest();
     });
+  }
 }

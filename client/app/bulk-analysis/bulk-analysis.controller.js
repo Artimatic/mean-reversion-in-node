@@ -57,6 +57,7 @@ function BulkAnalysisController($http) {
    vm.setGraph = function(stock, difference) {
      vm.stock = stock;
      vm.difference = difference;
+     console.log('set ticker to ', vm.stock);
    }
 }
 
