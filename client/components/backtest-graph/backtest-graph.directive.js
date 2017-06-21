@@ -117,7 +117,7 @@ function backtestGraph($http) {
     };
 
     scope.$watch('ticker', function () {
-      if(vm.ticker){
+      if(scope.ticker){
         runTest();
       }
     });
