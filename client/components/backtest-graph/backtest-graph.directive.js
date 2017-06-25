@@ -15,7 +15,7 @@ function backtestGraph($http) {
 
   return directive;
 
-  function link(scope, element, attrs) {
+  function link(scope) {
     scope.backtestDate = new Date();
     scope.backtestStartDate = moment(scope.backtestDate).subtract(4, 'years').toDate();
     scope.datapoints=[];
@@ -23,8 +23,6 @@ function backtestGraph($http) {
                     {'id':'buy','type':'scatter','name':'Buy Signal', 'color': '#0da445'},
                     {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
     scope.datax={'id':'x'};
-    scope.simulatedTrades = {};
-    scope.longPos = [];
     scope.resolving = false;
     scope.performance = null;
     scope.recommendedDifference = 0;
@@ -114,7 +112,7 @@ function backtestGraph($http) {
             scope.resolving = false;
             console.log(error);
         });
-    };
+    }
 
     scope.$watch('ticker', function () {
       if(scope.ticker){

@@ -9,8 +9,6 @@ function BacktestController ($http) {
                     {'id':'sell','type':'scatter','name':'Sell Signal', 'color': '#f56a6b'}];
     vm.datax={'id':'x'};
     vm.security = '';
-    vm.simulatedTrades = {};
-    vm.longPos = [];
     vm.resolving = false;
     vm.performance = null;
     vm.acceptedDifference = 0.010;
