@@ -79,6 +79,8 @@ function backtestGraph($http) {
         };
 
         scope.resolving = true;
+        scope.datapoints = [];
+
         $http({
           method: 'POST',
           url: '/api/mean-reversion/backtest',
@@ -86,7 +88,6 @@ function backtestGraph($http) {
         })
         .then((response) => {
             var data = response.data;
-            scope.datapoints = [];
             scope.performance = data[data.length-1].totalReturn;
             scope.recommendedDifference = data[data.length-1].recommendedDifference;
             var day = null;
@@ -105,7 +106,6 @@ function backtestGraph($http) {
                     scope.datapoints.push({'x': moment(day.date).format('YYYY-MM-DD'), 'price': day.close, 'data': day});
                 }
             }
-            scope.data = data;
             scope.resolving = false;
         })
         .catch((error) => {
