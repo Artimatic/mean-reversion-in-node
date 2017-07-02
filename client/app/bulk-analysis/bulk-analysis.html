@@ -33,11 +33,7 @@
       </thead>
       <tbody>
         <tr class="md-table-content-row" ng-repeat="item in vm.bulkData | filter:vm.filter" ng-click="vm.setGraph(item.stock,item.recommendedDifference)">
-          <td>
-            <div class="md-table-thumbs">
-              <h3>{{ item.stock }}</h3>
-            </div>
-          </td>
+          <td class="md-table-content">{{ item.stock }}</td>
           <td class="md-table-content">{{ item.totalReturns | percentage:2}}</td>
           <td class="md-table-content">{{ item.recommendedDifference}}</td>
           <td class="md-table-content">{{ item.lower.price }}</td>
