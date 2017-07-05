@@ -14,7 +14,6 @@
       <div flex>
           <md-progress-linear md-mode="determinate" value="{{vm.waiting}}"></md-progress-linear>
       </div>
-
     </div>
   </md-content>
   <md-content>
@@ -28,8 +27,6 @@
             <th class="md-table-header">Stock</th>
             <th class="md-table-header">Returns</th>
             <th class="md-table-header">Recommended Difference</th>
-            <th class="md-table-header">Min Price</th>
-            <th class="md-table-header">Max Price</th>
             <th class="md-table-header">Last Price</th>
             <th class="md-table-header">Recommendation</th>
           </tr>
@@ -39,8 +36,6 @@
             <td class="md-table-content">{{ item.stock }}</td>
             <td class="md-table-content">{{ item.totalReturns | percentage:2}}</td>
             <td class="md-table-content">{{ item.recommendedDifference}}</td>
-            <td class="md-table-content">{{ item.lower.price }}</td>
-            <td class="md-table-content">{{ item.upper.price }}</td>
             <td class="md-table-content">{{ item.lastPrice }}</td>
             <td class="md-table-content">{{item.trending}}</td>
           </tr>

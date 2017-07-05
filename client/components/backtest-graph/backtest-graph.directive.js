@@ -41,15 +41,15 @@ function backtestGraph($http) {
         return false;
     }
 
-    scope.dateFn = function (x) {
+    scope.dateFunc = function (x) {
         return moment(x).format('MM/DD');
     };
 
-    scope.titleFormatFunction = function (x) {
+    scope.titleFormat = function (x) {
         return moment(x).format('MM-DD-YYYY');
     };
 
-    scope.tooltipContents = function (d) {
+    scope.tooltip = function (d) {
         let title = '<tr><th>'+moment(d[0].x).format('MM-DD-YYYY')+'</th></tr>',
             body = '<tr><td>',
             value = d[0].index;

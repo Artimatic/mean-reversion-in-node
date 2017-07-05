@@ -3,8 +3,8 @@
     chart-x="datax" enable-zoom="true">
   <chart-axis>
     <chart-axis-x axis-id="x" axis-type="timeseries" axis-x-format="%Y-%m-%d">
-      <chart-axis-x-tick tick-format-function="dateFn" />
+      <chart-axis-x-tick tick-format-function="dateFunc" />
     </chart-axis-x>
   </chart-axis>
-  <chart-tooltip title-format-function ="titleFormatFunction" content-format-function="tooltipContents"/>
+  <chart-tooltip title-format-function ="titleFormat" content-format-function="tooltip"/>
 </c3chart>

@@ -128,33 +128,23 @@ class ReversionService {
                 if(autoDeviation) {
                     deviation = recommendedDifference;
                 }
+
                 let returns = DecisionService.getReturns(decisions, deviation, startDate);
 
                 returnInfo = Object.assign(returns, {recommendedDifference});
 
                 return returnInfo;
             })
-            .then(data => {
-                return this.calcPricing(quotes, quotes.length-1, decision.thirtyTotal, decision.ninetyTotal, deviation);
-            })
             .then(price =>{
-                let trend1      = this.getTrend(quotes, quotes.length-1, price.lower.thirtyAvg, price.lower.ninetyAvg),
-                    trend2      = this.getTrend(quotes, quotes.length-1, price.upper.thirtyAvg, price.upper.ninetyAvg),
-                    lastPrice   = quotes[quotes.length-1].close,
+                let lastPrice   = quotes[quotes.length-1].close,
                     actionable  = false,
                     trend       = null;
 
-                price.lower.trend = trend1;
-                price.upper.trend = trend2;
-
-                if(returnInfo.totalReturns > 0.01 && returnInfo.totalTrades > 30 &&
-                  decision.trending !== DecisionService.getTrendsConst().indet &&
-                  ((lastPrice >= price.lower.price && lastPrice <= price.upper.price) ||
-                  DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation))) {
+                if(DecisionService.triggerCondition(lastPrice, decision.thirtyAvg, decision.ninetyAvg, deviation)) {
                     actionable = true;
                 }
 
-                return Object.assign(returnInfo, price, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
+                return Object.assign(returnInfo, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
             })
             .catch(err => {
                 console.log('ERROR! backtest snapshot', err, ticker);
