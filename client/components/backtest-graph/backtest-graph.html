@@ -1,10 +1,9 @@
-<h3>{{ticker}}</h3>
-<c3chart bindto-id="bulkchart" chart-data="datapoints" chart-columns="datacolumns"
-    chart-x="datax" enable-zoom="true">
+<h3>{{vm.ticker}}</h3>
+<c3chart bindto-id="bulkchart" chart-data="vm.datapoints" chart-columns="vm.datacolumns"
+    chart-x="vm.datax" enable-zoom="true">
   <chart-axis>
     <chart-axis-x axis-id="x" axis-type="timeseries" axis-x-format="%Y-%m-%d">
-      <chart-axis-x-tick tick-format-function="dateFunc" />
     </chart-axis-x>
   </chart-axis>
-  <chart-tooltip title-format-function ="titleFormat" content-format-function="tooltip"/>
+  <chart-tooltip title-format-function="vm.titleFormat" content-format-function="vm.tooltip"/>
 </c3chart>

@@ -1,23 +1,26 @@
 'use strict';
 
 function BulkAnalysisController($http) {
-  var vm = this,
-    totalItems = 0;
+  var vm          = this,
+      totalItems  = 0;
   vm.bulkData = [];
   vm.actionableFilter = false;
   vm.waiting = 0;
 
   function backtestRequest(data) {
-    $http.post('/api/mean-reversion/info', data, {}).then(function(response) {
-      vm.bulkData.push(Object.assign({
-        stock: data.ticker
-      }, response.data));
-      vm.waiting += 100 / totalItems;
-    }).catch(function(error) {
-      vm.waiting += 100 / totalItems;
-      console.log('error', error);
-    });
+    $http.post('/api/mean-reversion/info', data, {})
+        .then(function(response) {
+          vm.bulkData.push(Object.assign({
+            stock: data.ticker
+          }, response.data));
+          vm.waiting += 100 / totalItems;
+        })
+        .catch(function(error) {
+          vm.waiting += 100 / totalItems;
+          console.log('error', error);
+        });
   }
+
   vm.read = function(workbook) {
     totalItems = workbook.length;
     vm.waiting = 0;
@@ -31,9 +34,11 @@ function BulkAnalysisController($http) {
       backtestRequest(data);
     });
   };
+
   vm.error = function(e) {
     console.log('error', e);
   };
+
   vm.filter = function(item) {
     if (!vm.actionableFilter) {
       return true;
@@ -43,6 +48,7 @@ function BulkAnalysisController($http) {
     }
     return true;
   };
+
   vm.setGraph = function(stock, difference) {
     vm.stock = stock;
     vm.difference = difference;
