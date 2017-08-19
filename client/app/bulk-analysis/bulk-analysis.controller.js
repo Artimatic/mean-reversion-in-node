@@ -6,6 +6,12 @@ function BulkAnalysisController($http) {
   vm.bulkData = [];
   vm.actionableFilter = false;
   vm.waiting = 0;
+  vm.filterOptions = {
+    actionable: true,
+    sell: true,
+    buy: true,
+    indeterminant: false
+  };
 
   function backtestRequest(data) {
     $http.post('/api/mean-reversion/info', data, {})
@@ -40,10 +46,18 @@ function BulkAnalysisController($http) {
   };
 
   vm.filter = function(item) {
-    if (!vm.actionableFilter) {
-      return true;
+      console.log('test: ',vm.filterOptions, item);
+
+    if (vm.filterOptions.actionable && !item.actionable) {
+      return false;
     }
-    if (!item.actionable) {
+    if (vm.filterOptions.buy && angular.lowercase(item.trending) !== 'buy') {
+      return false;
+    }
+    if (vm.filterOptions.sell && angular.lowercase(item.trending) !== 'sell') {
+      return false;
+    }
+    if (vm.filterOptions.indeterminant && angular.lowercase(item.trending) !== 'indeterminant') {
       return false;
     }
     return true;

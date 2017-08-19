@@ -1,18 +1,33 @@
 <div ng-controller="BulkAnalysisController as vm">
   <md-content layout-padding layout="row" layout-align="start end">
     <div layout="row">
+      <div class="import-container" layout="column" flex>
         <div flex>
-            <xls-import handler="vm.read" error="vm.error"></xls-import>
+          <xls-import handler="vm.read" error="vm.error"></xls-import>
         </div>
-    </div>
-    <div layout="row">
         <div flex>
-          <md-checkbox ng-model="vm.actionableFilter" aria-label="Show actionable stocks">
-            Only actionable stocks
-          </md-checkbox>
-        </div>
-      <div flex>
           <md-progress-linear md-mode="determinate" value="{{vm.waiting}}"></md-progress-linear>
+        </div>
+      </div>
+      <div flex="25">
+        <md-checkbox ng-model="vm.filterOptions.actionable" aria-label="Show actionable stocks">
+          Only actionable stocks
+        </md-checkbox>
+      </div>
+      <div flex="10">
+        <md-checkbox ng-model="vm.filterOptions.buy" aria-label="Show buy stocks">
+          Buy
+        </md-checkbox>
+      </div>
+      <div flex="10">
+        <md-checkbox ng-model="vm.filterOptions.sell" aria-label="Show sell stocks">
+          Sell
+        </md-checkbox>
+      </div>
+      <div flex="25">
+        <md-checkbox ng-model="vm.filterOptions.indeterminant" aria-label="Show indeterminant stocks">
+          Indeterminant
+        </md-checkbox>
       </div>
     </div>
   </md-content>
