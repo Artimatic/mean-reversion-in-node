@@ -46,8 +46,6 @@ function BulkAnalysisController($http) {
   };
 
   vm.filter = function(item) {
-      console.log('test: ',vm.filterOptions, item);
-
     if (vm.filterOptions.actionable && !item.actionable) {
       return false;
     }
