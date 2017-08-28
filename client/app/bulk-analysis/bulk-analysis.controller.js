@@ -49,11 +49,11 @@ function BulkAnalysisController($http) {
     if (vm.filterOptions.actionable && !item.actionable) {
       return false;
     }
-    if (vm.filterOptions.buy && angular.lowercase(item.trending) === 'buy') {
-      return true;
+    if (vm.filterOptions.buy && angular.lowercase(item.trending) !== 'buy') {
+      return false;
     }
-    if (vm.filterOptions.sell && angular.lowercase(item.trending) === 'sell') {
-      return true;
+    if (vm.filterOptions.sell && angular.lowercase(item.trending) !== 'sell') {
+      return false;
     }
     return true;
   };

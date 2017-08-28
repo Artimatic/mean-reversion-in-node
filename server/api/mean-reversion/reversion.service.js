@@ -137,6 +137,7 @@ class ReversionService {
             })
             .then(price =>{
                 let lastPrice   = quotes[quotes.length-1].close,
+                    lastVolume  =  quotes[quotes.length-1].volume,
                     actionable  = false,
                     trend       = null;
 
@@ -144,7 +145,10 @@ class ReversionService {
                     actionable = true;
                 }
 
-                return Object.assign(returnInfo, {lastPrice: lastPrice, trending: decision.trending, actionable: actionable});
+                return Object.assign(returnInfo, {  lastPrice: lastPrice,
+                                                    lastVolume: lastVolume,
+                                                    trending: decision.trending,
+                                                    actionable: actionable  });
             })
             .catch(err => {
                 console.log('ERROR! backtest snapshot', err, ticker);
