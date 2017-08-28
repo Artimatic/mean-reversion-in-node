@@ -7,6 +7,7 @@
         </div>
         <div flex>
           <md-progress-linear md-mode="determinate" value="{{vm.waiting}}"></md-progress-linear>
+          {{vm.waiting | percentage:2 }}
         </div>
       </div>
       <div flex="25">
@@ -36,6 +37,7 @@
           <tr class="md-table-headers-row">
             <th class="md-table-header">Stock</th>
             <th class="md-table-header">Returns</th>
+            <th class="md-table-header">Trades</th>
             <th class="md-table-header">Recommended Difference</th>
             <th class="md-table-header">Last Price</th>
             <th class="md-table-header">Recommendation</th>
@@ -44,10 +46,11 @@
         <tbody>
           <tr class="md-table-content-row" ng-repeat="item in vm.bulkData | filter:vm.filter" ng-click="vm.setGraph(item.stock,item.recommendedDifference)">
             <td class="md-table-content">{{ item.stock }}</td>
-            <td class="md-table-content">{{ item.totalReturns | percentage:2}}</td>
+            <td class="md-table-content">{{ item.totalReturns | percentage:2 }}</td>
+            <td class="md-table-content">{{ item.totalTrades }}</td>
             <td class="md-table-content">{{ item.recommendedDifference}}</td>
             <td class="md-table-content">{{ item.lastPrice }}</td>
-            <td class="md-table-content">{{item.trending}}</td>
+            <td class="md-table-content">{{ item.trending }}</td>
           </tr>
         </tbody>
       </table>
