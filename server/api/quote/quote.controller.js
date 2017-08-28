@@ -26,16 +26,6 @@ class QuoteController extends BaseController {
                 .catch((err) => BaseController.requestErrorHandler(response, err));
         }
     }
-
-    getSnapshot(request, response) {
-        if (_.isEmpty(request.body)) {
-            return response.status(Boom.badRequest().output.statusCode).send(Boom.badRequest().output);
-        } else {
-            QuoteService.getSnapshot(request.body.tickers)
-                .then((data) => BaseController.requestGetSuccessHandler(response, data))
-                .catch((err) => BaseController.requestErrorHandler(response, err));
-        }
-    }
 }
 
 module.exports = new QuoteController();

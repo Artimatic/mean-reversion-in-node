@@ -8,6 +8,3 @@ const QuoteController = require('./quote.controller');
 exports.quote = function (req, res, next) {
   QuoteController.getQuote(req, res);
 };
-exports.snapshot = function (req, res, next) {
-  QuoteController.getSnapshot(req, res);
-};

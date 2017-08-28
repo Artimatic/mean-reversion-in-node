@@ -22,8 +22,9 @@ class BaseController {
     }
 
     static requestGetSuccessHandler(reply, data) {
-        if (_.isEmpty(data) || data.Count === 0) {
-            reply.status(204);
+        if (_.isEmpty(data)) {
+            console.log('reply empty');
+            reply.status(204).send();
         } else {
           reply.status(200).send(data);
         }
