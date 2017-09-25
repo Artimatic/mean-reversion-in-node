@@ -28,34 +28,44 @@
     </div>
   </md-content>
   <md-content>
-    <div class="backtest-graph">
-      <backtest-graph ticker="vm.stock" difference="vm.difference"></backtest-graph>
-    </div>
+    <md-card>
+      <md-card-title>
+        <md-card-title-text>
+          <span class="md-headline">{{vm.stock}}</span>
+          <span class="md-subhead">Descripton</span>
+        </md-card-title-text>
+      </md-card-title>
+      <div class="backtest-graph">
+        <backtest-graph ticker="vm.stock" difference="vm.difference"></backtest-graph>
+      </div>
+    </md-card>
     <div class="inner-container">
-      <table class="md-table" md-colresize="md-colresize">
-        <thead>
-          <tr class="md-table-headers-row">
-            <th class="md-table-header">Stock</th>
-            <th class="md-table-header">Returns</th>
-            <th class="md-table-header">Last Volume</th>
-            <th class="md-table-header">Last Price</th>
-            <th class="md-table-header">Trades</th>
-            <th class="md-table-header">Recommended Difference</th>
-            <th class="md-table-header">Recommendation</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="md-table-content-row" ng-repeat="item in vm.bulkData | orderBy:'-lastVolume' | filter:vm.filter" ng-click="vm.setGraph(item.stock,item.recommendedDifference)">
-            <td class="md-table-content">{{ item.stock }}</td>
-            <td class="md-table-content">{{ item.totalReturns | percentage:2 }}</td>
-            <td class="md-table-content">{{ item.lastVolume | number : fractionSize }}</td>
-            <td class="md-table-content">{{ item.lastPrice }}</td>
-            <td class="md-table-content">{{ item.totalTrades }}</td>
-            <td class="md-table-content">{{ item.recommendedDifference}}</td>
-            <td class="md-table-content">{{ item.trending }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <md-card>
+        <table class="md-table" md-colresize="md-colresize">
+          <thead>
+            <tr class="md-table-headers-row">
+              <th class="md-table-header">Stock</th>
+              <th class="md-table-header">Returns</th>
+              <th class="md-table-header">Last Volume</th>
+              <th class="md-table-header">Last Price</th>
+              <th class="md-table-header">Trades</th>
+              <th class="md-table-header">Recommended Difference</th>
+              <th class="md-table-header">Recommendation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="md-table-content-row" ng-repeat="item in vm.bulkData | orderBy:'-lastVolume' | filter:vm.filter" ng-click="vm.setGraph(item.stock,item.recommendedDifference)">
+              <td class="md-table-content">{{ item.stock }}</td>
+              <td class="md-table-content">{{ item.totalReturns | percentage:2 }}</td>
+              <td class="md-table-content">{{ item.lastVolume | number : fractionSize }}</td>
+              <td class="md-table-content">{{ item.lastPrice }}</td>
+              <td class="md-table-content">{{ item.totalTrades }}</td>
+              <td class="md-table-content">{{ item.recommendedDifference}}</td>
+              <td class="md-table-content">{{ item.trending }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </md-card>
     </div>
   </md-content>
 </div>
