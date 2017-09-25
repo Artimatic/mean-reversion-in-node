@@ -5,3 +5,4 @@ angular
 
 require('./xls-import/xls-import.directive');
 require('./backtest-graph/backtest-graph.directive');
+require('./nav/nav.directive');

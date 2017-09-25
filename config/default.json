@@ -1,3 +1,7 @@
 {
-    "port": 9000
+    "port": 9000,
+    "mongodb": {
+        "username": "badstorybro",
+        "password": "IshInetZErmi"
+    }
 }

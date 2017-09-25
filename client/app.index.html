@@ -1,55 +1,35 @@
 <!DOCTYPE html>
 
 <html ng-app="main">
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <base href="/">
-      <title></title>
-      <meta name="description" content="">
-      <meta name="viewport" content="width=device-width">
-      <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
-      <link rel="stylesheet" href="/dist/css/main.css">
-      <script src="/dist/vendors/index.js"></script>
-      <script src="//cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js"></script>
-      <script src="/dist/framework/index.js"></script>
-    </head>
-    <body>
 
-<div flex>
-        <md-toolbar>
-          <div class="md-toolbar-tools">
-            <md-button hide-gt-md aria-label="Menu">
-              <ng-md-icon icon="menu"></ng-md-icon>
-            </md-button>
-            <h3 ui-sref="home">
-                Home
-            </h3>
-            <span flex></span>
-            <md-button aria-label="Search">
-              <ng-md-icon icon="search"></ng-md-icon>
-            </md-button>
-            <md-button aria-label="Open Settings">
-              <ng-md-icon icon="more_vert"></ng-md-icon>
-            </md-button>
-          </div>
-          <md-tabs md-stretch-tabs class="md-primary">
-            <md-tab id="tab1" ui-sref="home" aria-controls="tab1-content">
-              Backtest
-            </md-tab>
-            <md-tab id="tab2" ui-sref="bulk" aria-controls="tab2-content">
-                Bulk Analysis
-            </md-tab>
-          </md-tabs>
-        </md-toolbar>
-        </div>
-        <div flex>
-            <div ui-view></div>
-        </div>
-    </body>
-    <footer>
-        <div layout="row" layout-align="center center">
-          <h3>&copy; 2017 David Chan</h3>
-        </div>
-    </footer>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <base href="/">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <link rel="stylesheet" href="/dist/css/main.css">
+  <script src="/dist/vendors/index.js"></script>
+  <script src="//cdn.jsdelivr.net/angular-material-icons/0.4.0/angular-material-icons.min.js"></script>
+  <script src="/dist/framework/index.js"></script>
+</head>
+
+<body>
+  <div flex>
+    <md-toolbar>
+        <nav></nav>
+    </md-toolbar>
+  </div>
+  <div flex>
+    <div ui-view></div>
+  </div>
+</body>
+<footer>
+  <div layout="row" layout-align="center center">
+    <h3>&copy; 2017 David Chan</h3>
+  </div>
+</footer>
+
 </html>
